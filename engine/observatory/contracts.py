@@ -8,7 +8,7 @@ Family = Literal["transient_read", "instrument_unavailable", "committed_timeout"
 
 
 class Contract(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", json_schema_serialization_defaults_required=True)
 
 
 class Instrument(Contract):

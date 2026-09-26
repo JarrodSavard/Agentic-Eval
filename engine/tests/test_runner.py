@@ -1,7 +1,6 @@
 import json
 
 import pytest
-
 from observatory.agents import ScriptedAgent
 from observatory.artifacts import export_bundle, verify_bundle
 from observatory.contracts import EvaluationBundle, ExperimentConfig
@@ -67,3 +66,30 @@ def test_regrade_rejects_fabricated_state_snapshots():
 def test_unknown_schema_version_is_rejected():
     with pytest.raises(ValueError):
         EvaluationBundle.model_validate_json(json.dumps({"schema_version": "99"}))
+
+
+@pytest.mark.parametrize(
+    "field,value,expected",
+    [
+        ("status", "completed", "status mismatch"),
+        ("tool_calls", 0, "tool count mismatch"),
+        ("invalid_actions", 999, "invalid action count mismatch"),
+    ],
+)
+def test_verifier_rejects_contradictory_trial_metadata(field, value, expected):
+    scenario = catalog()[0]
+    config = ExperimentConfig(max_turns=2)
+    trial = run_trial(scenario, ScriptedAgent(scenario), config)
+    assert trial.grade.success and trial.status == "turn_limit"
+    setattr(trial, field, value)
+    bundle = make_bundle([scenario], [trial], config, experiment_id="test")
+    assert any(expected in error for error in verify_bundle(bundle))
+
+
+def test_verifier_rejects_events_outside_configured_limits():
+    scenario = catalog()[0]
+    config = ExperimentConfig()
+    trial = run_trial(scenario, ScriptedAgent(scenario), config)
+    trial.events[0].turn = 9
+    bundle = make_bundle([scenario], [trial], config, experiment_id="test")
+    assert any("turn order or limit" in error for error in verify_bundle(bundle))

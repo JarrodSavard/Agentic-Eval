@@ -1,0 +1,636 @@
+{
+  "$defs": {
+    "ExperimentConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_usd": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Budget Usd",
+          "type": "number"
+        },
+        "max_turns": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Max Turns",
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "default": 12,
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Max Tool Calls",
+          "type": "integer"
+        },
+        "max_output_tokens": {
+          "default": 512,
+          "maximum": 512,
+          "minimum": 1,
+          "title": "Max Output Tokens",
+          "type": "integer"
+        },
+        "max_input_tokens": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Input Tokens",
+          "type": "integer"
+        },
+        "repetitions": {
+          "default": 1,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Repetitions",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "budget_usd",
+        "max_turns",
+        "max_tool_calls",
+        "max_output_tokens",
+        "max_input_tokens",
+        "repetitions"
+      ],
+      "title": "ExperimentConfig",
+      "type": "object"
+    },
+    "Grade": {
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "completed_requests": {
+          "title": "Completed Requests",
+          "type": "integer"
+        },
+        "total_requests": {
+          "title": "Total Requests",
+          "type": "integer"
+        },
+        "violations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "success",
+        "completed_requests",
+        "total_requests",
+        "violations"
+      ],
+      "title": "Grade",
+      "type": "object"
+    },
+    "Instrument": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "bands": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bands",
+          "type": "array"
+        },
+        "available": {
+          "default": true,
+          "title": "Available",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "bands",
+        "available"
+      ],
+      "title": "Instrument",
+      "type": "object"
+    },
+    "ObservationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "band": {
+          "title": "Band",
+          "type": "string"
+        },
+        "allowed_slots": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Allowed Slots",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "target",
+        "band",
+        "allowed_slots"
+      ],
+      "title": "ObservationRequest",
+      "type": "object"
+    },
+    "ObservatoryState": {
+      "additionalProperties": false,
+      "properties": {
+        "instruments": {
+          "items": {
+            "$ref": "#/$defs/Instrument"
+          },
+          "title": "Instruments",
+          "type": "array"
+        },
+        "reservations": {
+          "items": {
+            "$ref": "#/$defs/Reservation"
+          },
+          "title": "Reservations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "instruments",
+        "reservations"
+      ],
+      "title": "ObservatoryState",
+      "type": "object"
+    },
+    "Reservation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "instrument_id": {
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "slot": {
+          "title": "Slot",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "request_id",
+        "instrument_id",
+        "slot"
+      ],
+      "title": "Reservation",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "base_id": {
+          "title": "Base Id",
+          "type": "string"
+        },
+        "version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Version",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "transient_read",
+            "instrument_unavailable",
+            "committed_timeout"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "variant": {
+          "enum": [
+            "clean",
+            "fault"
+          ],
+          "title": "Variant",
+          "type": "string"
+        },
+        "requests": {
+          "items": {
+            "$ref": "#/$defs/ObservationRequest"
+          },
+          "title": "Requests",
+          "type": "array"
+        },
+        "initial_state": {
+          "$ref": "#/$defs/ObservatoryState"
+        }
+      },
+      "required": [
+        "id",
+        "base_id",
+        "version",
+        "title",
+        "description",
+        "family",
+        "variant",
+        "requests",
+        "initial_state"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "ToolResult": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "fault": {
+          "anyOf": [
+            {
+              "enum": [
+                "transient_read",
+                "instrument_unavailable",
+                "committed_timeout"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fault"
+        }
+      },
+      "required": [
+        "data",
+        "error",
+        "fault"
+      ],
+      "title": "ToolResult",
+      "type": "object"
+    },
+    "TraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "sequence": {
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "tool",
+            "message",
+            "stopped"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "turn": {
+          "title": "Turn",
+          "type": "integer"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "arguments": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "state": {
+          "$ref": "#/$defs/ObservatoryState"
+        }
+      },
+      "required": [
+        "sequence",
+        "kind",
+        "turn",
+        "tool",
+        "arguments",
+        "result",
+        "text",
+        "state"
+      ],
+      "title": "TraceEvent",
+      "type": "object"
+    },
+    "TrialResult": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Model"
+        },
+        "source": {
+          "enum": [
+            "scripted",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "repetition": {
+          "default": 1,
+          "title": "Repetition",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "turn_limit",
+            "tool_limit",
+            "provider_error",
+            "budget_exhausted",
+            "input_limit",
+            "output_truncated",
+            "interrupted",
+            "not_run"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "started_at": {
+          "title": "Started At",
+          "type": "string"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "tool_calls": {
+          "minimum": 0,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "invalid_actions": {
+          "minimum": 0,
+          "title": "Invalid Actions",
+          "type": "integer"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        },
+        "estimated_cost_usd": {
+          "minimum": 0,
+          "title": "Estimated Cost Usd",
+          "type": "number"
+        },
+        "reserved_cost_usd": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Reserved Cost Usd",
+          "type": "number"
+        },
+        "usage_complete": {
+          "default": true,
+          "title": "Usage Complete",
+          "type": "boolean"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        },
+        "grade": {
+          "$ref": "#/$defs/Grade"
+        },
+        "final_state": {
+          "$ref": "#/$defs/ObservatoryState"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/TraceEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "scenario_id",
+        "agent",
+        "provider",
+        "model",
+        "returned_model",
+        "source",
+        "repetition",
+        "status",
+        "started_at",
+        "latency_ms",
+        "tool_calls",
+        "invalid_actions",
+        "usage",
+        "estimated_cost_usd",
+        "reserved_cost_usd",
+        "usage_complete",
+        "settings",
+        "grade",
+        "final_state",
+        "events"
+      ],
+      "title": "TrialResult",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_tokens": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Input Tokens",
+          "type": "integer"
+        },
+        "output_tokens": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Output Tokens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input_tokens",
+        "output_tokens"
+      ],
+      "title": "Usage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "code_revision": {
+      "title": "Code Revision",
+      "type": "string"
+    },
+    "prompt_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Prompt Version",
+      "type": "string"
+    },
+    "config": {
+      "$ref": "#/$defs/ExperimentConfig"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/Scenario"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "trials": {
+      "items": {
+        "$ref": "#/$defs/TrialResult"
+      },
+      "title": "Trials",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "created_at",
+    "code_revision",
+    "prompt_version",
+    "config",
+    "scenarios",
+    "trials"
+  ],
+  "title": "EvaluationBundle",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

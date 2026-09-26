@@ -1,13 +1,19 @@
 """One bounded loop for both scripted policies and live provider adapters."""
 
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from time import perf_counter
 
 from observatory.budget import Budget, BudgetExceeded
 from observatory.contracts import (
-    EvaluationBundle, ExperimentConfig, Scenario, TraceEvent, TrialResult, TrialStatus, Usage,
+    EvaluationBundle,
+    ExperimentConfig,
+    Scenario,
+    TraceEvent,
+    TrialResult,
+    TrialStatus,
+    Usage,
 )
 from observatory.grading import grade
 from observatory.protocol import Agent, ProviderError
@@ -15,11 +21,16 @@ from observatory.simulator import Simulator
 
 
 def now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
-def run_trial(scenario: Scenario, agent: Agent, config: ExperimentConfig,
-              budget: Budget | None = None, repetition: int = 1) -> TrialResult:
+def run_trial(
+    scenario: Scenario,
+    agent: Agent,
+    config: ExperimentConfig,
+    budget: Budget | None = None,
+    repetition: int = 1,
+) -> TrialResult:
     budget = budget or Budget(Decimal(str(config.budget_usd)))
     sim = Simulator(scenario)
     events: list[TraceEvent] = []
@@ -56,7 +67,9 @@ def run_trial(scenario: Scenario, agent: Agent, config: ExperimentConfig,
                     status = "provider_error"
                     break
                 assert agent.pricing is not None
-                budget.settle(hold, response.usage.input_tokens, response.usage.output_tokens, agent.pricing)
+                budget.settle(
+                    hold, response.usage.input_tokens, response.usage.output_tokens, agent.pricing
+                )
                 hold = Decimal(0)
                 usage.input_tokens += response.usage.input_tokens
                 usage.output_tokens += response.usage.output_tokens
@@ -68,8 +81,15 @@ def run_trial(scenario: Scenario, agent: Agent, config: ExperimentConfig,
                 status = "output_truncated"
                 break
             if response.text:
-                events.append(TraceEvent(sequence=len(events), kind="message", turn=turn_number,
-                                         text=response.text, state=sim.state.model_copy(deep=True)))
+                events.append(
+                    TraceEvent(
+                        sequence=len(events),
+                        kind="message",
+                        turn=turn_number,
+                        text=response.text,
+                        state=sim.state.model_copy(deep=True),
+                    )
+                )
             if not response.calls:
                 status = "completed"
                 break
@@ -80,9 +100,17 @@ def run_trial(scenario: Scenario, agent: Agent, config: ExperimentConfig,
                 result = sim.execute(call.name, call.arguments)
                 tool_calls += 1
                 invalid_actions += int(result.error is not None and result.fault is None)
-                events.append(TraceEvent(sequence=len(events), kind="tool", turn=turn_number,
-                                         tool=call.name, arguments=call.arguments, result=result.model_copy(deep=True),
-                                         state=sim.state.model_copy(deep=True)))
+                events.append(
+                    TraceEvent(
+                        sequence=len(events),
+                        kind="tool",
+                        turn=turn_number,
+                        tool=call.name,
+                        arguments=call.arguments,
+                        result=result.model_copy(deep=True),
+                        state=sim.state.model_copy(deep=True),
+                    )
+                )
                 agent.observe(call, result)
             if status == "tool_limit":
                 break
@@ -102,28 +130,59 @@ def run_trial(scenario: Scenario, agent: Agent, config: ExperimentConfig,
             status = "provider_error"
             break
     if status != "completed":
-        events.append(TraceEvent(sequence=len(events), kind="stopped", turn=turn_number,
-                                 text=status, state=sim.state.model_copy(deep=True)))
+        events.append(
+            TraceEvent(
+                sequence=len(events),
+                kind="stopped",
+                turn=turn_number,
+                text=status,
+                state=sim.state.model_copy(deep=True),
+            )
+        )
     return TrialResult(
-        id=f"{scenario.id}--{agent.model}--{repetition}", scenario_id=scenario.id,
-        agent=agent.name, provider=agent.provider, model=agent.model, returned_model=returned_model,
-        source=agent.source, repetition=repetition, status=status, started_at=started_at,
-        latency_ms=round((perf_counter() - started) * 1000, 3), tool_calls=tool_calls,
-        invalid_actions=invalid_actions, usage=usage,
+        id=f"{scenario.id}--{agent.model}--{repetition}",
+        scenario_id=scenario.id,
+        agent=agent.name,
+        provider=agent.provider,
+        model=agent.model,
+        returned_model=returned_model,
+        source=agent.source,
+        repetition=repetition,
+        status=status,
+        started_at=started_at,
+        latency_ms=round((perf_counter() - started) * 1000, 3),
+        tool_calls=tool_calls,
+        invalid_actions=invalid_actions,
+        usage=usage,
         estimated_cost_usd=float(budget.spent - initial_spent),
-        reserved_cost_usd=float(budget.reserved - initial_reserved), usage_complete=usage_complete,
-        settings=agent.settings, grade=grade(scenario, sim.state),
-        final_state=sim.state, events=events,
+        reserved_cost_usd=float(budget.reserved - initial_reserved),
+        usage_complete=usage_complete,
+        settings=agent.settings,
+        grade=grade(scenario, sim.state),
+        final_state=sim.state,
+        events=events,
     )
 
 
-def make_bundle(scenarios: list[Scenario], trials: list[TrialResult], config: ExperimentConfig,
-                experiment_id: str) -> EvaluationBundle:
+def make_bundle(
+    scenarios: list[Scenario],
+    trials: list[TrialResult],
+    config: ExperimentConfig,
+    experiment_id: str,
+) -> EvaluationBundle:
     try:
-        revision = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True).strip()
+        revision = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True
+        ).strip()
         if subprocess.check_output(["git", "status", "--porcelain"], text=True).strip():
             revision += "-dirty"
     except (subprocess.SubprocessError, FileNotFoundError):
         revision = "uncommitted"
-    return EvaluationBundle(experiment_id=experiment_id, created_at=now(), code_revision=revision,
-                            config=config, scenarios=scenarios, trials=trials)
+    return EvaluationBundle(
+        experiment_id=experiment_id,
+        created_at=now(),
+        code_revision=revision,
+        config=config,
+        scenarios=scenarios,
+        trials=trials,
+    )

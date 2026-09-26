@@ -21,7 +21,9 @@ class Pricing:
     def cost(self, inputs: int, outputs: int) -> Decimal:
         if inputs < 0 or outputs < 0:
             raise ValueError("Token usage must be nonnegative")
-        return (inputs * self.input_per_million + outputs * self.output_per_million) / Decimal(1_000_000)
+        return (inputs * self.input_per_million + outputs * self.output_per_million) / Decimal(
+            1_000_000
+        )
 
 
 class Budget:

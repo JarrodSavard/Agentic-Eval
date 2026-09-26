@@ -1,0 +1,10 @@
+node_modules
+.nuxt
+.output
+.venv
+dist
+public/data
+contracts
+app/generated
+pnpm-lock.yaml
+uv.lock

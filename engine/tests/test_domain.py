@@ -1,11 +1,11 @@
 from copy import deepcopy
 
 import pytest
-from hypothesis import given, strategies as st
-
+from hypothesis import given
+from hypothesis import strategies as st
+from observatory.grading import grade
 from observatory.scenarios import catalog
 from observatory.simulator import Simulator
-from observatory.grading import grade
 
 
 def case(family="transient_read", variant="clean", index=0):

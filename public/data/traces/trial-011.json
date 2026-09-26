@@ -1,0 +1,169 @@
+{
+  "id": "transient_read-03-fault--scripted-optimistic-v1--1",
+  "scenario_id": "transient_read-03-fault",
+  "agent": "Optimistic baseline",
+  "provider": "scripted",
+  "model": "scripted-optimistic-v1",
+  "returned_model": null,
+  "source": "scripted",
+  "repetition": 1,
+  "status": "completed",
+  "started_at": "2026-09-26T00:00:00+00:00",
+  "latency_ms": 0.0,
+  "tool_calls": 1,
+  "invalid_actions": 0,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "estimated_cost_usd": 0.0,
+  "reserved_cost_usd": 0.0,
+  "usage_complete": true,
+  "settings": {
+    "policy": "scripted-optimistic-v1"
+  },
+  "grade": {
+    "success": false,
+    "completed_requests": 0,
+    "total_requests": 2,
+    "violations": []
+  },
+  "final_state": {
+    "instruments": [
+      {
+        "id": "aurora",
+        "name": "Aurora / 01",
+        "bands": [
+          "visible",
+          "infrared"
+        ],
+        "available": true
+      },
+      {
+        "id": "meridian",
+        "name": "Meridian / 02",
+        "bands": [
+          "visible",
+          "infrared"
+        ],
+        "available": true
+      },
+      {
+        "id": "cinder",
+        "name": "Cinder / 03",
+        "bands": [
+          "visible"
+        ],
+        "available": true
+      }
+    ],
+    "reservations": [
+      {
+        "id": "existing-1",
+        "request_id": "unrelated-program",
+        "instrument_id": "aurora",
+        "slot": 0
+      }
+    ]
+  },
+  "events": [
+    {
+      "sequence": 0,
+      "kind": "tool",
+      "turn": 1,
+      "tool": "inspect_observatory",
+      "arguments": {},
+      "result": {
+        "data": {},
+        "error": "temporary_unavailable",
+        "fault": "transient_read"
+      },
+      "text": null,
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 1,
+      "kind": "message",
+      "turn": 2,
+      "tool": null,
+      "arguments": null,
+      "result": null,
+      "text": "The scripted policy stopped after a tool error.",
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          }
+        ]
+      }
+    }
+  ]
+}

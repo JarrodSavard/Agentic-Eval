@@ -40,14 +40,28 @@ class ScriptedAgent:
                 if not instrument["available"] or request.band not in instrument["bands"]:
                     continue
                 for slot in request.allowed_slots:
-                    if any(b["instrument_id"] == instrument["id"] and b["slot"] == slot
-                           for b in self.snapshot["reservations"]):
+                    if any(
+                        b["instrument_id"] == instrument["id"] and b["slot"] == slot
+                        for b in self.snapshot["reservations"]
+                    ):
                         continue
-                    return AgentTurn(calls=[ToolCall(str(self.calls), "reserve_observation", {
-                        "request_id": request.id, "instrument_id": instrument["id"],
-                        "slot": slot, "idempotency_key": f"{request.id}-{instrument['id']}-{slot}",
-                    })])
-        return AgentTurn(text="Scheduling complete. Check the recorded environment for the outcome.")
+                    return AgentTurn(
+                        calls=[
+                            ToolCall(
+                                str(self.calls),
+                                "reserve_observation",
+                                {
+                                    "request_id": request.id,
+                                    "instrument_id": instrument["id"],
+                                    "slot": slot,
+                                    "idempotency_key": f"{request.id}-{instrument['id']}-{slot}",
+                                },
+                            )
+                        ]
+                    )
+        return AgentTurn(
+            text="Scheduling complete. Check the recorded environment for the outcome."
+        )
 
     def observe(self, call: ToolCall, result: ToolResult) -> None:
         if result.error:

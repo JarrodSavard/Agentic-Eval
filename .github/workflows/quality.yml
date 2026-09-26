@@ -1,0 +1,86 @@
+name: Quality and Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      NUXT_APP_BASE_URL: /Agentic-Eval/
+      NUXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.19'
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.32.1'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: uv sync --frozen
+      - run: pnpm install --frozen-lockfile
+      - run: uv run ruff check engine
+      - run: uv run ruff format --check engine
+      - run: uv run mypy
+      - run: uv run pytest -q
+      - name: Verify generated contracts
+        run: |
+          uv run observatory schema
+          git diff --exit-code -- contracts/evaluation.schema.json
+          pnpm check:contracts
+      - name: Verify published evidence
+        run: uv run observatory verify public/data/bundle.json
+      - name: Verify scripted fixture reproducibility
+        run: |
+          uv run observatory demo --output artifacts/regenerated
+          python scripts/check-demo.py
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm generate
+      - run: pnpm check:budget
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: test-results/
+          retention-days: 7
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: .output/public
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified static application
+        id: deployment
+        uses: actions/deploy-pages@v4

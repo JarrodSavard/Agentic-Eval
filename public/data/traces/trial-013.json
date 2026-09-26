@@ -1,0 +1,470 @@
+{
+  "id": "transient_read-04-clean--scripted-optimistic-v1--1",
+  "scenario_id": "transient_read-04-clean",
+  "agent": "Optimistic baseline",
+  "provider": "scripted",
+  "model": "scripted-optimistic-v1",
+  "returned_model": null,
+  "source": "scripted",
+  "repetition": 1,
+  "status": "completed",
+  "started_at": "2026-09-26T00:00:00+00:00",
+  "latency_ms": 0.0,
+  "tool_calls": 4,
+  "invalid_actions": 0,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "estimated_cost_usd": 0.0,
+  "reserved_cost_usd": 0.0,
+  "usage_complete": true,
+  "settings": {
+    "policy": "scripted-optimistic-v1"
+  },
+  "grade": {
+    "success": true,
+    "completed_requests": 3,
+    "total_requests": 3,
+    "violations": []
+  },
+  "final_state": {
+    "instruments": [
+      {
+        "id": "aurora",
+        "name": "Aurora / 01",
+        "bands": [
+          "visible",
+          "infrared"
+        ],
+        "available": true
+      },
+      {
+        "id": "meridian",
+        "name": "Meridian / 02",
+        "bands": [
+          "visible",
+          "infrared"
+        ],
+        "available": true
+      },
+      {
+        "id": "cinder",
+        "name": "Cinder / 03",
+        "bands": [
+          "visible"
+        ],
+        "available": true
+      }
+    ],
+    "reservations": [
+      {
+        "id": "existing-1",
+        "request_id": "unrelated-program",
+        "instrument_id": "aurora",
+        "slot": 0
+      },
+      {
+        "id": "reservation-1",
+        "request_id": "observation-1",
+        "instrument_id": "aurora",
+        "slot": 11
+      },
+      {
+        "id": "reservation-2",
+        "request_id": "observation-2",
+        "instrument_id": "aurora",
+        "slot": 12
+      },
+      {
+        "id": "reservation-3",
+        "request_id": "observation-3",
+        "instrument_id": "aurora",
+        "slot": 13
+      }
+    ]
+  },
+  "events": [
+    {
+      "sequence": 0,
+      "kind": "tool",
+      "turn": 1,
+      "tool": "inspect_observatory",
+      "arguments": {},
+      "result": {
+        "data": {
+          "instruments": [
+            {
+              "id": "aurora",
+              "name": "Aurora / 01",
+              "bands": [
+                "visible",
+                "infrared"
+              ],
+              "available": true
+            },
+            {
+              "id": "meridian",
+              "name": "Meridian / 02",
+              "bands": [
+                "visible",
+                "infrared"
+              ],
+              "available": true
+            },
+            {
+              "id": "cinder",
+              "name": "Cinder / 03",
+              "bands": [
+                "visible"
+              ],
+              "available": true
+            }
+          ],
+          "reservations": [
+            {
+              "id": "existing-1",
+              "request_id": "unrelated-program",
+              "instrument_id": "aurora",
+              "slot": 0
+            }
+          ]
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 1,
+      "kind": "tool",
+      "turn": 2,
+      "tool": "reserve_observation",
+      "arguments": {
+        "request_id": "observation-1",
+        "instrument_id": "aurora",
+        "slot": 11,
+        "idempotency_key": "observation-1-aurora-11"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-1",
+            "request_id": "observation-1",
+            "instrument_id": "aurora",
+            "slot": 11
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "observation-1",
+            "instrument_id": "aurora",
+            "slot": 11
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "tool",
+      "turn": 3,
+      "tool": "reserve_observation",
+      "arguments": {
+        "request_id": "observation-2",
+        "instrument_id": "aurora",
+        "slot": 12,
+        "idempotency_key": "observation-2-aurora-12"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-2",
+            "request_id": "observation-2",
+            "instrument_id": "aurora",
+            "slot": 12
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "observation-1",
+            "instrument_id": "aurora",
+            "slot": 11
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "observation-2",
+            "instrument_id": "aurora",
+            "slot": 12
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 3,
+      "kind": "tool",
+      "turn": 4,
+      "tool": "reserve_observation",
+      "arguments": {
+        "request_id": "observation-3",
+        "instrument_id": "aurora",
+        "slot": 13,
+        "idempotency_key": "observation-3-aurora-13"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-3",
+            "request_id": "observation-3",
+            "instrument_id": "aurora",
+            "slot": 13
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "observation-1",
+            "instrument_id": "aurora",
+            "slot": 11
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "observation-2",
+            "instrument_id": "aurora",
+            "slot": 12
+          },
+          {
+            "id": "reservation-3",
+            "request_id": "observation-3",
+            "instrument_id": "aurora",
+            "slot": 13
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 4,
+      "kind": "message",
+      "turn": 5,
+      "tool": null,
+      "arguments": null,
+      "result": null,
+      "text": "Scheduling complete. Check the recorded environment for the outcome.",
+      "state": {
+        "instruments": [
+          {
+            "id": "aurora",
+            "name": "Aurora / 01",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "meridian",
+            "name": "Meridian / 02",
+            "bands": [
+              "visible",
+              "infrared"
+            ],
+            "available": true
+          },
+          {
+            "id": "cinder",
+            "name": "Cinder / 03",
+            "bands": [
+              "visible"
+            ],
+            "available": true
+          }
+        ],
+        "reservations": [
+          {
+            "id": "existing-1",
+            "request_id": "unrelated-program",
+            "instrument_id": "aurora",
+            "slot": 0
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "observation-1",
+            "instrument_id": "aurora",
+            "slot": 11
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "observation-2",
+            "instrument_id": "aurora",
+            "slot": 12
+          },
+          {
+            "id": "reservation-3",
+            "request_id": "observation-3",
+            "instrument_id": "aurora",
+            "slot": 13
+          }
+        ]
+      }
+    }
+  ]
+}
