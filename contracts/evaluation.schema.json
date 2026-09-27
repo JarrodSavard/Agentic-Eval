@@ -62,6 +62,54 @@
       "title": "Car",
       "type": "object"
     },
+    "EvaluationCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_applicable",
+            "not_assessed"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_sequences": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Evidence Sequences",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "title",
+        "verdict",
+        "detail",
+        "evidence_sequences"
+      ],
+      "title": "EvaluationCheck",
+      "type": "object"
+    },
     "ExperimentConfig": {
       "additionalProperties": false,
       "properties": {
@@ -225,8 +273,11 @@
           "type": "string"
         },
         "version": {
-          "const": "2.0",
           "default": "2.0",
+          "enum": [
+            "2.0",
+            "3.0"
+          ],
           "title": "Version",
           "type": "string"
         },
@@ -242,7 +293,10 @@
           "enum": [
             "transient_read",
             "car_unavailable",
-            "committed_timeout"
+            "committed_timeout",
+            "prompt_injection",
+            "no_matching_car",
+            "competing_requests"
           ],
           "title": "Family",
           "type": "string"
@@ -264,6 +318,27 @@
         },
         "initial_state": {
           "$ref": "#/$defs/RentalState"
+        },
+        "expected_outcome": {
+          "default": "booked",
+          "enum": [
+            "booked",
+            "unavailable"
+          ],
+          "title": "Expected Outcome",
+          "type": "string"
+        },
+        "rental_notice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rental Notice"
         }
       },
       "required": [
@@ -275,9 +350,40 @@
         "family",
         "variant",
         "requests",
-        "initial_state"
+        "initial_state",
+        "expected_outcome",
+        "rental_notice"
       ],
       "title": "Scenario",
+      "type": "object"
+    },
+    "StepAssessment": {
+      "additionalProperties": false,
+      "properties": {
+        "sequence": {
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "verdict": {
+          "enum": [
+            "accepted",
+            "rejected",
+            "disrupted"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "verdict",
+        "detail"
+      ],
+      "title": "StepAssessment",
       "type": "object"
     },
     "ToolResult": {
@@ -306,7 +412,10 @@
               "enum": [
                 "transient_read",
                 "car_unavailable",
-                "committed_timeout"
+                "committed_timeout",
+                "prompt_injection",
+                "no_matching_car",
+                "competing_requests"
               ],
               "type": "string"
             },
@@ -409,6 +518,53 @@
         "state"
       ],
       "title": "TraceEvent",
+      "type": "object"
+    },
+    "TrialAssessment": {
+      "additionalProperties": false,
+      "properties": {
+        "grader_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Grader Version",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/EvaluationCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/StepAssessment"
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "turns": {
+          "title": "Turns",
+          "type": "integer"
+        },
+        "repeated_reads": {
+          "title": "Repeated Reads",
+          "type": "integer"
+        },
+        "safe_retries": {
+          "title": "Safe Retries",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "grader_version",
+        "checks",
+        "steps",
+        "turns",
+        "repeated_reads",
+        "safe_retries"
+      ],
+      "title": "TrialAssessment",
       "type": "object"
     },
     "TrialResult": {
@@ -529,6 +685,17 @@
           },
           "title": "Events",
           "type": "array"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -552,7 +719,8 @@
         "settings",
         "grade",
         "final_state",
-        "events"
+        "events",
+        "assessment"
       ],
       "title": "TrialResult",
       "type": "object"
@@ -584,8 +752,11 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "2.0",
-      "default": "2.0",
+      "default": "3.0",
+      "enum": [
+        "2.0",
+        "3.0"
+      ],
       "title": "Schema Version",
       "type": "string"
     },
@@ -602,8 +773,11 @@
       "type": "string"
     },
     "prompt_version": {
-      "const": "2.0",
-      "default": "2.0",
+      "default": "3.0",
+      "enum": [
+        "2.0",
+        "3.0"
+      ],
       "title": "Prompt Version",
       "type": "string"
     },

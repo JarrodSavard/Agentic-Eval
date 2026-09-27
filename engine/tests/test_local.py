@@ -63,6 +63,47 @@ def test_local_run_exports_both_conditions_and_all_scenarios(setup):
     assert client.get("/api/live/bootstrap").json()["latest_run_id"] == run_id
 
 
+def test_local_repetitions_keep_every_attempt_with_unique_ids(setup):
+    _, client, headers = setup
+    response = client.post("/api/live/runs", json=request() | {"repetitions": 3}, headers=headers)
+    assert response.status_code == 201
+    bundle = EvaluationBundle.model_validate(completed(client, response.json()["run_id"])["bundle"])
+    assert len(bundle.trials) == 6
+    assert {t.repetition for t in bundle.trials} == {1, 2, 3}
+    assert len({t.id for t in bundle.trials}) == 6
+    assert bundle.config.repetitions == 3 and bundle.config.budget_usd == 0.5
+
+
+def test_repetitions_share_one_budget_and_preserve_not_run_entries(setup):
+    from decimal import Decimal
+
+    from roadtest.budget import Pricing
+    from roadtest.contracts import Usage
+
+    class MeteredAgent(ScriptedAgent):
+        source = "live"
+        pricing = Pricing(Decimal("10000"), Decimal("0"))
+
+        def count_input(self):
+            return 1
+
+        def next(self, limit):
+            response = super().next(limit)
+            response.usage = Usage(input_tokens=1, output_tokens=0)
+            return response
+
+    manager, client, headers = setup
+    manager.factory = lambda s, p: MeteredAgent(s)
+    response = client.post(
+        "/api/live/runs", json=request() | {"repetitions": 3, "budget_usd": 0.05}, headers=headers
+    )
+    bundle = EvaluationBundle.model_validate(completed(client, response.json()["run_id"])["bundle"])
+    assert len(bundle.trials) == 6
+    assert sum(t.estimated_cost_usd for t in bundle.trials) == pytest.approx(0.04)
+    assert sum(t.status == "not_run" for t in bundle.trials) == 4
+    assert any(t.status == "budget_exhausted" for t in bundle.trials)
+
+
 def test_local_service_rejects_foreign_origins_hosts_and_missing_token(setup):
     _, client, headers = setup
     assert client.post("/api/live/runs", json=request()).status_code == 403

@@ -15,10 +15,16 @@ export type Reason = string | null;
 export type Profiles = LiveProfile[];
 export type Id1 = string;
 export type BaseId = string;
-export type Version = "2.0";
+export type Version = "2.0" | "3.0";
 export type Title = string;
 export type Description = string;
-export type Family = "transient_read" | "car_unavailable" | "committed_timeout";
+export type Family =
+  | "transient_read"
+  | "car_unavailable"
+  | "committed_timeout"
+  | "prompt_injection"
+  | "no_matching_car"
+  | "competing_requests";
 export type Variant = "clean" | "fault";
 export type Id2 = string;
 export type Customer = string;
@@ -36,11 +42,14 @@ export type RequestId = string;
 export type CarId = string;
 export type Day = string;
 export type Bookings = Booking[];
+export type ExpectedOutcome = "booked" | "unavailable";
+export type RentalNotice = string | null;
 export type Scenarios = Scenario[];
 export type RunId = string;
 export type Status = "running" | "completed" | "failed";
 export type ActiveScenarioId = string | null;
 export type ActiveAgent = string | null;
+export type ActiveRepetition = number;
 export type Sequence = number;
 export type Kind = "tool" | "message" | "stopped";
 export type Turn = number;
@@ -50,14 +59,22 @@ export type Arguments = {
 } | null;
 export type Error = string | null;
 export type Fault =
-  ("transient_read" | "car_unavailable" | "committed_timeout") | null;
+  | (
+      | "transient_read"
+      | "car_unavailable"
+      | "committed_timeout"
+      | "prompt_injection"
+      | "no_matching_car"
+      | "competing_requests"
+    )
+  | null;
 export type Text = string | null;
 export type Events = TraceEvent[];
-export type SchemaVersion = "2.0";
+export type SchemaVersion = "2.0" | "3.0";
 export type ExperimentId = string;
 export type CreatedAt = string;
 export type CodeRevision = string;
-export type PromptVersion = "2.0";
+export type PromptVersion = "2.0" | "3.0";
 export type BudgetUsd = number;
 export type MaxTurns = number;
 export type MaxToolCalls = number;
@@ -97,6 +114,21 @@ export type CompletedRequests = number;
 export type TotalRequests = number;
 export type Violations = string[];
 export type Events1 = TraceEvent[];
+export type GraderVersion = "1.0";
+export type Id6 = string;
+export type Category = string;
+export type Title1 = string;
+export type Verdict = "pass" | "fail" | "not_applicable" | "not_assessed";
+export type Detail = string;
+export type EvidenceSequences = number[];
+export type Checks = EvaluationCheck[];
+export type Sequence1 = number;
+export type Verdict1 = "accepted" | "rejected" | "disrupted";
+export type Detail1 = string;
+export type Steps = StepAssessment[];
+export type Turns = number;
+export type RepeatedReads = number;
+export type SafeRetries = number;
 export type Trials = TrialResult[];
 export type RecordingSaved = boolean;
 export type CancelRequested = boolean;
@@ -108,6 +140,7 @@ export type Error1 = string | null;
 export type ProfileIds = string[];
 export type BaseId1 = string;
 export type BudgetUsd1 = number;
+export type Repetitions1 = number;
 
 /**
  * Schema collection for generated browser types, not an HTTP envelope.
@@ -140,6 +173,8 @@ export interface Scenario {
   variant: Variant;
   requests: Requests;
   initial_state: RentalState;
+  expected_outcome: ExpectedOutcome;
+  rental_notice: RentalNotice;
 }
 export interface RentalRequest {
   id: Id2;
@@ -169,6 +204,7 @@ export interface LiveSnapshot {
   status: Status;
   active_scenario_id: ActiveScenarioId;
   active_agent: ActiveAgent;
+  active_repetition: ActiveRepetition;
   events: Events;
   bundle: EvaluationBundle;
   recording_saved: RecordingSaved;
@@ -233,6 +269,7 @@ export interface TrialResult {
   grade: Grade;
   final_state: RentalState;
   events: Events1;
+  assessment: TrialAssessment | null;
 }
 export interface Usage {
   input_tokens: InputTokens;
@@ -247,8 +284,30 @@ export interface Grade {
   total_requests: TotalRequests;
   violations: Violations;
 }
+export interface TrialAssessment {
+  grader_version: GraderVersion;
+  checks: Checks;
+  steps: Steps;
+  turns: Turns;
+  repeated_reads: RepeatedReads;
+  safe_retries: SafeRetries;
+}
+export interface EvaluationCheck {
+  id: Id6;
+  category: Category;
+  title: Title1;
+  verdict: Verdict;
+  detail: Detail;
+  evidence_sequences: EvidenceSequences;
+}
+export interface StepAssessment {
+  sequence: Sequence1;
+  verdict: Verdict1;
+  detail: Detail1;
+}
 export interface StartRun {
   profile_ids: ProfileIds;
   base_id: BaseId1;
   budget_usd: BudgetUsd1;
+  repetitions: Repetitions1;
 }

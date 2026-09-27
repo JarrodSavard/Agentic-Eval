@@ -20,6 +20,7 @@ from roadtest.providers import PROVIDERS, create_agent
 from roadtest.providers.registry import load_profiles
 from roadtest.runner import make_bundle, now, run_trial
 from roadtest.scenarios import catalog
+from roadtest.statistics import compare_baseline, summarize_reliability
 
 FIXTURE_TIME = "2026-09-26T00:00:00+00:00"
 
@@ -54,10 +55,10 @@ def offline_bundle(config: ExperimentConfig, *, reproducible: bool = False) -> E
         for reckless in (False, True)
         for repetition in range(1, config.repetitions + 1)
     ]
-    bundle = make_bundle(scenarios, trials, config, "scripted-rental-demonstration-v2")
+    bundle = make_bundle(scenarios, trials, config, "scripted-rental-demonstration-v3")
     if reproducible:
         bundle.created_at = FIXTURE_TIME
-        bundle.code_revision = "scripted-rental-fixture-v2"
+        bundle.code_revision = "scripted-rental-fixture-v3"
         for trial in bundle.trials:
             trial.started_at = FIXTURE_TIME
             trial.latency_ms = 0  # scripted fixture timings are intentionally not benchmark data
@@ -82,7 +83,12 @@ def live_bundle(args: argparse.Namespace, config: ExperimentConfig) -> Evaluatio
     if any(not 0 <= (date.today() - p.price_checked_at).days <= 30 for p in profiles):
         raise ValueError("Verify model pricing and update price_checked_at (maximum age: 30 days)")
     scenarios = catalog()
-    selected = [s for s in scenarios if s.base_id == "committed_timeout-01"]
+    requested_tasks = args.tasks.split(",")
+    if requested_tasks == ["showcase"]:
+        requested_tasks = [s.base_id for s in scenarios if s.id.endswith("-01-clean")]
+    if not set(requested_tasks) <= {s.base_id for s in scenarios}:
+        raise ValueError("Unknown task; choose a base_id from the scenario catalog")
+    selected = [s for s in scenarios if s.base_id in requested_tasks]
     budget = Budget(Decimal(str(config.budget_usd)))
     bundle = make_bundle(scenarios, [], config, f"live-showcase-{uuid4().hex[:12]}")
     stopped = False
@@ -130,6 +136,11 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--live", action="store_true")
     run.add_argument("--budget", type=float, default=0.5)
     run.add_argument("--repetitions", type=int, default=1)
+    run.add_argument(
+        "--tasks",
+        default="committed_timeout-01",
+        help="Live task base IDs, comma-separated, or showcase for the first pair of each family",
+    )
     run.add_argument("--output", default="artifacts/evaluation.json")
     run.add_argument("--profiles", default="config/models.json")
     run.add_argument(
@@ -154,6 +165,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     publish.add_argument("file")
     publish.add_argument("--output", default="public/data")
+    report = commands.add_parser(
+        "report", help="Print repeated-run estimates from a verified recording"
+    )
+    report.add_argument("file")
+    report.add_argument("--k", type=int, default=2)
+    regression = commands.add_parser(
+        "regress", help="Compare compatible saved runs; exit 1 on observed regressions"
+    )
+    regression.add_argument("baseline")
+    regression.add_argument("file")
     args = parser.parse_args(argv)
     try:
         if args.command == "run":
@@ -206,6 +227,20 @@ def main(argv: list[str] | None = None) -> int:
                 raise ValueError("; ".join(errors[:10]))
             if args.command == "publish":
                 write_viewer_data(bundle, Path(args.output))
+            elif args.command == "report":
+                print(json.dumps(summarize_reliability(bundle, args.k), indent=2))
+                return 0
+            elif args.command == "regress":
+                baseline = EvaluationBundle.model_validate_json(
+                    Path(args.baseline).read_text(encoding="utf-8")
+                )
+                if baseline_errors := verify_bundle(baseline):
+                    raise ValueError("Invalid baseline: " + "; ".join(baseline_errors[:3]))
+                comparison = compare_baseline(baseline, bundle)
+                print(json.dumps(comparison, indent=2))
+                return (
+                    1 if comparison["regressions"] else 2 if not comparison["matched_groups"] else 0
+                )
             print(f"Verified {len(bundle.trials)} recorded trials")
         return 0
     except (ValueError, OSError) as exc:

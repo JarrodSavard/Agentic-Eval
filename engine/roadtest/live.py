@@ -4,6 +4,7 @@ import os
 from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
+from itertools import product
 from pathlib import Path
 from threading import Event, RLock, Thread
 from typing import Literal
@@ -36,6 +37,7 @@ class StartRun(Contract):
     profile_ids: list[str] = Field(min_length=1, max_length=8)
     base_id: str
     budget_usd: float = Field(default=0.5, gt=0, le=1)
+    repetitions: int = Field(default=1, ge=1, le=10)
 
 
 class LiveSnapshot(Contract):
@@ -43,6 +45,7 @@ class LiveSnapshot(Contract):
     status: Literal["running", "completed", "failed"] = "running"
     active_scenario_id: str | None = None
     active_agent: str | None = None
+    active_repetition: int = 1
     events: list[TraceEvent] = Field(default_factory=list)
     bundle: EvaluationBundle
     recording_saved: bool = False
@@ -117,7 +120,7 @@ class LiveManager:
         scenarios = [s for s in catalog() if s.base_id == request.base_id]
         if len(scenarios) != 2:
             raise ValueError("Choose a task from the scenario catalog")
-        config = ExperimentConfig(budget_usd=request.budget_usd)
+        config = ExperimentConfig(budget_usd=request.budget_usd, repetitions=request.repetitions)
         with self.lock:
             if self.worker and self.worker.is_alive():
                 raise RunConflict("An experiment is already running; wait or stop it first")
@@ -174,21 +177,23 @@ class LiveManager:
         budget = Budget(Decimal(str(config.budget_usd)))
         stopped = False
         try:
-            for scenario in scenarios:
+            for repetition, scenario in product(range(1, config.repetitions + 1), scenarios):
                 for profile in profiles:
                     with self.lock:
                         snapshot.active_scenario_id = scenario.id
                         snapshot.active_agent = profile.label
+                        snapshot.active_repetition = repetition
                         snapshot.events = []
                         snapshot.recording_saved = False
                     if stopped or self.cancel.is_set():
                         trial = TrialResult(
-                            id=f"{scenario.id}--{profile.model}--1",
+                            id=f"{scenario.id}--{profile.model}--{repetition}",
                             scenario_id=scenario.id,
                             agent=profile.label,
                             provider=profile.provider,
                             model=profile.model,
                             source="live",
+                            repetition=repetition,
                             status="not_run",
                             started_at=now(),
                             latency_ms=0,
@@ -213,6 +218,7 @@ class LiveManager:
                             self.factory(scenario, profile),
                             config,
                             budget,
+                            repetition,
                             on_event=emit,
                             should_stop=self.cancel.is_set,
                         )
