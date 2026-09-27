@@ -238,9 +238,11 @@ def main(argv: list[str] | None = None) -> int:
                     raise ValueError("Invalid baseline: " + "; ".join(baseline_errors[:3]))
                 comparison = compare_baseline(baseline, bundle)
                 print(json.dumps(comparison, indent=2))
-                return (
-                    1 if comparison["regressions"] else 2 if not comparison["matched_groups"] else 0
-                )
+                if comparison["regressions"]:
+                    return 1
+                if comparison["unresolved_groups"] or not comparison["matched_groups"]:
+                    return 2
+                return 0
             print(f"Verified {len(bundle.trials)} recorded trials")
         return 0
     except (ValueError, OSError) as exc:

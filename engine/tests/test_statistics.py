@@ -121,3 +121,49 @@ def test_baselines_with_different_tasks_prompts_or_limits_are_not_compared():
         else:
             after.scenarios[0].requests[0].allowed_days = ["2026-10-30"]
         assert compare_baseline(before, after)["matched_groups"] == 0
+
+
+@pytest.mark.parametrize("unresolved_side", ["before", "after"])
+def test_early_provider_failure_cannot_produce_a_clean_regression_exit(
+    tmp_path, capsys, unresolved_side
+):
+    from roadtest.artifacts import export_bundle, verify_bundle
+    from roadtest.assessment import assess_trial
+    from roadtest.cli import main
+    from roadtest.contracts import TraceEvent
+    from roadtest.grading import grade
+    from roadtest.statistics import compare_baseline
+
+    before = sample(3, 3)
+    for trial in before.trials:
+        trial.source = "live"  # Offline fixture for a provider transcript.
+        trial.returned_model = "confirmed-snapshot"
+    after = before.model_copy(deep=True)
+    partial = before if unresolved_side == "before" else after
+    trial = partial.trials[-1]
+    task = partial.scenarios[0]
+    trial.returned_model = None
+    trial.status = "provider_error"
+    trial.final_state = task.initial_state.model_copy(deep=True)
+    trial.tool_calls = trial.invalid_actions = 0
+    trial.grade = grade(task, trial.final_state)
+    trial.events = [
+        TraceEvent(
+            sequence=0, turn=1, kind="stopped", text="provider_error", state=trial.final_state
+        )
+    ]
+    trial.assessment = assess_trial(task, trial, partial.config, require_receipt=True)
+    # A second, unaffected group must not hide the unresolved comparison either.
+    for bundle in (before, after):
+        stable = bundle.trials[0].model_copy(deep=True)
+        stable.id = "separate-configuration"
+        stable.settings = {"cohort": "separate"}
+        bundle.trials.append(stable)
+    assert verify_bundle(before) == verify_bundle(after) == []
+    comparison = compare_baseline(before, after)
+    assert comparison["unresolved_groups"] == 1
+    assert comparison["matched_groups"] == 1
+    for name, bundle in (("before", before), ("after", after)):
+        export_bundle(bundle, tmp_path / f"{name}.json")
+    assert main(["regress", str(tmp_path / "before.json"), str(tmp_path / "after.json")]) == 2
+    assert '"unresolved_groups": 1' in capsys.readouterr().out

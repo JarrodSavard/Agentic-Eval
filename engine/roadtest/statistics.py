@@ -40,26 +40,31 @@ def _groups(bundle: EvaluationBundle) -> dict[str, list[TrialResult]]:
     return dict(groups)
 
 
+def _requested_key(key: str) -> str:
+    value = json.loads(key)
+    value.pop("returned_model")
+    return json.dumps(value, sort_keys=True)
+
+
+def _unresolved_attempts(groups: dict[str, list[TrialResult]]) -> dict[str, int]:
+    unresolved: dict[str, int] = defaultdict(int)
+    for key, trials in groups.items():
+        unresolved[_requested_key(key)] += sum(
+            t.source == "live" and t.returned_model is None for t in trials
+        )
+    return unresolved
+
+
 def summarize_reliability(bundle: EvaluationBundle, k: int = 2) -> list[dict[str, Any]]:
     if k < 1:
         raise ValueError("k must be at least 1")
     rows = []
     groups = _groups(bundle)
-
-    def requested_key(key: str) -> str:
-        value = json.loads(key)
-        value.pop("returned_model")
-        return json.dumps(value, sort_keys=True)
-
-    unresolved: dict[str, int] = defaultdict(int)
-    for key, trials in groups.items():
-        unresolved[requested_key(key)] += sum(
-            t.source == "live" and t.returned_model is None for t in trials
-        )
+    unresolved = _unresolved_attempts(groups)
     for key, trials in groups.items():
         successes = sum(t.status == "completed" and t.grade.success for t in trials)
         at_least, every = pass_estimates(len(trials), successes, k)
-        unknown = unresolved[requested_key(key)]
+        unknown = unresolved[_requested_key(key)]
         if unknown:
             at_least = every = None
         rows.append(
@@ -84,7 +89,10 @@ def summarize_reliability(bundle: EvaluationBundle, k: int = 2) -> list[dict[str
 
 def compare_baseline(before: EvaluationBundle, after: EvaluationBundle) -> dict[str, Any]:
     old, new = _groups(before), _groups(after)
-    matched = old.keys() & new.keys()
+    unresolved = {
+        key for groups in (old, new) for key, count in _unresolved_attempts(groups).items() if count
+    }
+    matched = {key for key in old.keys() & new.keys() if _requested_key(key) not in unresolved}
     regressions = []
     for key in sorted(matched):
         previous, current = old[key], new[key]
@@ -132,6 +140,7 @@ def compare_baseline(before: EvaluationBundle, after: EvaluationBundle) -> dict[
         "matched_groups": len(matched),
         "unmatched_before": len(old) - len(matched),
         "unmatched_after": len(new) - len(matched),
+        "unresolved_groups": len(unresolved),
         "regressions": regressions,
-        "note": "Observed differences, not statistical significance. Incomplete attempts count as unsuccessful. Unassessed checks are not passes.",
+        "note": "Observed differences, not statistical significance. Incomplete attempts count as unsuccessful. Unassessed checks are not passes. Configurations with unknown returned models are unresolved, never a clean comparison.",
     }
