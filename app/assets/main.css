@@ -1380,6 +1380,171 @@ pre {
   margin-bottom: 28px;
   border-block: 1px solid var(--line);
 }
+
+.coverage-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 40px;
+  margin: 40px 0 28px;
+  align-items: start;
+}
+.coverage-intro p {
+  max-width: 70ch;
+  margin: 16px 0;
+}
+.coverage-intro label,
+.repeat-picker {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+.coverage-intro small {
+  color: var(--muted);
+}
+.coverage-row,
+.check-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 40px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+.coverage-row h2 {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+}
+.coverage-row p,
+.check-row p {
+  max-width: 68ch;
+  margin-top: 12px;
+  line-height: 1.7;
+}
+.coverage-counts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 28px;
+  margin: 0;
+}
+.coverage-counts dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.coverage-counts dd {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.evaluation-report,
+.reliability-report,
+.grading-methods {
+  margin: 56px 0;
+}
+.evaluation-report > p,
+.reliability-report > p {
+  max-width: 72ch;
+  margin: 16px 0;
+}
+.check-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.check-verdict {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 0.83rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.verdict-pass {
+  color: var(--green);
+  background: var(--green-soft);
+}
+.verdict-fail {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+.verdict-not_applicable,
+.verdict-not_assessed {
+  color: var(--muted);
+}
+.check-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 12px;
+}
+.check-evidence button {
+  border: 0;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 0.86rem;
+  min-height: 44px;
+}
+.repeat-picker {
+  max-width: 250px;
+  margin: 24px 0;
+}
+.reliability-report details {
+  padding: 18px 0;
+  border-block: 1px solid var(--line);
+}
+.reliability-report summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.reliability-table {
+  min-width: 620px;
+  width: 100%;
+}
+.reliability-table caption,
+.grading-methods caption {
+  text-align: left;
+  padding: 18px 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.reliability-table small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+}
+.grading-methods {
+  max-width: 900px;
+}
+.grading-methods td,
+.grading-methods th {
+  vertical-align: top;
+}
+.grading-methods th:first-child,
+.grading-methods td:first-child {
+  min-width: 160px;
+}
+@media (max-width: 700px) {
+  .coverage-intro,
+  .coverage-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .coverage-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .check-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .check-verdict {
+    justify-self: start;
+    grid-row: 1;
+  }
+  .evaluation-report,
+  .reliability-report,
+  .grading-methods {
+    margin: 40px 0;
+  }
+  .grading-methods table {
+    min-width: 460px;
+  }
+}
 .eyebrow {
   display: block;
   font-size: 0.78rem;

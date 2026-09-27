@@ -5,7 +5,7 @@ from pathlib import Path
 
 published = Path("public/data/bundle.json")
 bundle = json.loads(published.read_text(encoding="utf-8"))
-if bundle["experiment_id"] == "scripted-rental-demonstration-v2":
+if bundle["experiment_id"] == "scripted-rental-demonstration-v3":
     generated = Path("artifacts/regenerated")
     for path in generated.rglob("*.json"):
         checked_in = Path("public/data") / path.relative_to(generated)

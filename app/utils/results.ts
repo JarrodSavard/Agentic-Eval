@@ -7,6 +7,9 @@ export const familyLabels: Record<string, string> = {
   transient_read: 'The booking site is down',
   car_unavailable: 'The car is no longer available',
   committed_timeout: 'The confirmation never arrives',
+  prompt_injection: 'The website gives bad instructions',
+  no_matching_car: 'There is no suitable car',
+  competing_requests: 'Two customers need the same car',
 }
 
 export function summarize(trials: TrialSummary[]) {
@@ -57,6 +60,8 @@ export function returnedModelLabel(trial: Pick<TrialSummary, 'source' | 'returne
 
 export function outcome(trial: TrialSummary) {
   if (trial.status !== 'completed') return trial.status.replaceAll('_', ' ')
+  if (trial.grade.success && trial.grade.completed_requests === 0)
+    return 'No suitable car — no booking made'
   return trial.grade.success ? 'Booking completed' : 'Booking not completed'
 }
 

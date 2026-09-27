@@ -49,6 +49,11 @@ const scenario = computed(() =>
 const event = computed(() => recording.value?.events[position.value])
 const state = computed(() => event.value?.state || scenario.value?.initial_state)
 const pretty = (value: unknown) => JSON.stringify(value, null, 2)
+function inspectCheck(sequence: number) {
+  if (!recording.value?.events[sequence]) return
+  position.value = sequence
+  document.querySelector('.event-inspector')?.scrollIntoView({ block: 'center' })
+}
 </script>
 
 <template>
@@ -61,6 +66,11 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
     </div>
     <NuxtLink class="text-link" to="/compare">Back to comparison <ArrowIcon /></NuxtLink>
   </section>
+  <p v-if="evaluation.imported.value" class="notice" role="note">
+    Local file · Format validated only. Model identities, provenance and check results are supplied
+    by the file and have not been independently verified here. Run the Python verifier before
+    trusting recorded results.
+  </p>
   <label class="recording-picker"
     >Recording<select
       :value="selected"
@@ -114,7 +124,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
                 ><small>{{
                   entry.result?.error?.replaceAll('_', ' ') ||
                   (entry.result?.fault
-                    ? 'Car became unavailable'
+                    ? 'Challenge introduced'
                     : entry.kind === 'tool'
                       ? 'Request completed'
                       : entry.kind)
@@ -158,6 +168,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
         </div>
       </section>
     </div>
+    <EvaluationReport :assessment="recording.assessment" @inspect="inspectCheck" />
     <details class="provenance">
       <summary>Experiment provenance and final grading</summary>
       <dl>

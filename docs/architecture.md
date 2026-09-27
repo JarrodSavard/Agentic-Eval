@@ -59,4 +59,12 @@ The model result is not deterministic. Only the environment, scripted baselines,
 
 ## Rental domain v2
 
-Public contracts use Car, RentalRequest, Booking and RentalState; tools are check_cars, book_car and cancel_booking. Artifact, scenario and prompt versions are 2.0. The CLI and Python package are named roadtest.
+Public contracts use Car, RentalRequest, Booking and RentalState; tools are check_cars, book_car, cancel_booking and the non-mutating report_result. New artifacts and prompts use version 3.0; original scenarios retain version 2.0 and added scenarios use version 3.0. Version 2 artifacts remain readable without inventing assessments. The CLI and Python package are named roadtest.
+
+## Independent checks and comparisons
+
+`assessment.py` grades observable actions, final receipts, outcomes, safety, recovery and execution limits without invoking a model. It returns explicit verdicts and event references, separately from final-state Grade. The verifier replays recorded actions and recomputes both. Missing receipts fail new completed runs but remain unassessed in older prompt-version-2 recordings. Receipt inputs are validated independently of a recorded tool's claimed success.
+
+`statistics.py` computes finite-sample repeated-run estimates and compares compatible saved groups. It keeps provider/model/settings/scenario/source/version boundaries and withholds estimates when the requested configuration includes unresolved returned-model attempts. Python and browser calculations share hand-calculated fixture cases. The comparison viewer never duplicates state-transition logic.
+
+The local StartRun contract adds repetitions, bounded to 1–10. One Budget instance covers every repetition, scenario and selected model in that invocation. Stop/budget conditions preserve planned not-run entries. CLI `report` and `regress` verify input evidence before presenting estimates or baseline changes.

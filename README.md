@@ -8,18 +8,20 @@ Can an AI book the right rental car when something goes wrong? This portfolio pr
 
 ## What is here
 
-- **24 scenarios:** 12 tasks, each with clean and failure variants.
+The expanded suite covers outcomes, tool use, workflow, recovery, safety, misleading website instructions, accurate receipts, execution limits, repeated-run reliability, and regression comparisons. See **Evaluations** in the app for plain-language explanations and actual evidence coverage.
+
+- **48 scenarios:** 24 rental tasks, each with normal and challenging variants across six families.
 - **Independent grading:** checks the final reservations rather than trusting the agent's answer.
 - **Inspectible traces:** tool calls, responses, injected faults, environment snapshots, usage, and provenance.
 - **Nuxt/TypeScript viewer:** comparisons, replay, scenario catalog, and local JSON import without uploading.
 - **Python runner:** official SDK adapters, a shared bounded agent loop, typed artifacts, and a conservative spending guard.
 - **Offline testing:** pytest, Hypothesis, mocked HTTP integration tests, generated-contract checks, Vitest, and Playwright on desktop and mobile.
 
-The rental-car demo uses **artifact, scenario and prompt version 2.0**.
+New runs use **artifact and prompt version 3.0**. The original scenarios remain version 2.0, and added scenarios use version 3.0. Version 2 rental recordings still open with missing new checks marked unassessed.
 
-**Published real comparison:** GPT-6 Luna and GPT-5.6 Luna each attempted Alex’s one-day rental with a child seat, once normally and once after the Blue SUV became unavailable. All four attempts passed. Both chose the City hatchback without a rejected booking, so this sample shows valid alternative choices—not recovery from a booking rejection. Total estimated API cost: **$0.0015746**. The sample covers 2 of 24 scenarios and is not a model ranking.
+**Published real comparison:** GPT-6 Luna and GPT-5.6 Luna each attempted Alex’s one-day rental with a child seat, once normally and once after the Blue SUV became unavailable. All four attempts passed. Both chose the City hatchback without a rejected booking, so this sample shows valid alternative choices—not recovery from a booking rejection. Total estimated API cost: **$0.0015746**. The sample covers 2 of the original 24 scenarios and is not a model ranking.
 
-The reference scripted agent passes all 24 rental scenarios; the deliberately faulty baseline demonstrates failed outcomes. Scripted examples are clearly labeled and make no claims about real model performance. Genuine rental recordings, when published, contain every attempt from the experiment, not just successful ones. Tiny samples illustrate behavior; they do not establish a ranking.
+The reference scripted agent passes all 48 rental scenarios; the deliberately faulty baseline demonstrates failed outcomes. Scripted examples are clearly labeled and make no claims about real model performance. Genuine rental recordings, when published, contain every attempt from the experiment, not just successful ones. Tiny samples illustrate behavior; they do not establish a ranking.
 
 ## Run locally
 
@@ -41,7 +43,7 @@ Copy `.env.example` to `.env` and configure the provider you want to use. For GP
 pnpm live
 ```
 
-Open **http://127.0.0.1:8765/live/**. Select a model and task, then click **Start live experiment**. Each selected model attempts both the clean and failure conditions. Tool calls, failures, and state changes appear as the runner reports them. The default $0.50 budget covers the entire click, with a $1 maximum. Starting another experiment is a new paid invocation.
+Open **http://127.0.0.1:8765/live/**. Select a model and task, then click **Start live experiment**. Each selected model attempts both normal and challenging conditions. Set **Attempts per situation** to repeat the same task (1–10); all repetitions share the single experiment budget. Tool calls, failures, and state changes appear as the runner reports them. The default $0.50 budget covers the entire click, with a $1 maximum. Starting another experiment is a new paid invocation.
 
 **Stop experiment** prevents subsequent requests and tool actions after any in-flight response finishes accounting. Refreshing reconnects to the current/latest run without restarting it. The service binds only to loopback, keeps keys on the Python side, and accepts browser mutations only from its own local origin with a session token. The public Pages site provides recordings and setup instructions; it cannot initiate paid work.
 
@@ -63,20 +65,20 @@ uv run roadtest verify artifacts/evaluation.json
 
 Use **Open result file** on the comparison page to inspect `artifacts/evaluation.json`. Files stay in browser memory. The importer validates format, version, references, and event order; it does not prove a file's claimed provenance. The Python verifier re-executes tool transitions and checks grades.
 
-## Run the tiny live showcase
+## Run a live showcase
 
-Copy `.env.example` to `.env` and add `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`. Never commit that file. Confirm the model IDs and prices in `config/models.json`; live runs refuse price tables older than 30 days.
+Copy `.env.example` to `.env` and add `OPENAI_API_KEY` for the Luna comparison. Add `ANTHROPIC_API_KEY` only if you also want Claude. Never commit that file. Confirm the model IDs and prices in `config/models.json`; live runs refuse price tables older than 30 days.
 
 ```sh
-uv run roadtest run --live --budget 0.50 --output artifacts/live-showcase.json
+uv run roadtest run --live --models openai-luna,openai-5.6-luna --tasks showcase --budget 0.50 --output artifacts/live-showcase.json
 uv run roadtest verify artifacts/live-showcase.json
 ```
 
-This attempts the predetermined `committed_timeout-01` task in clean and failure conditions, once with each configured provider: four attempts. The invocation's default budget is **$0.50** and its maximum allowed budget is **$1**. There are no automatic paid retries. Re-running the command is a new invocation and can spend additional money.
+This attempts the first task in each of the six families, in normal and challenging conditions, once per selected Luna model: 24 planned attempts. Omit `--tasks showcase` for the smaller default timeout pair, or provide comma-separated task base IDs. `--repetitions 2` repeats the selected cases within the same budget. The invocation's default budget is **$0.50** and its maximum allowed budget is **$1**. There are no automatic paid retries. Re-running the command is a new invocation and can spend additional money.
 
 Before generation, the runner counts input tokens and reserves the maximum output cost plus a 20% margin. Unknown usage or ambiguous failures keep their reservation and stop further paid requests. These are application-level estimates, not a provider-enforced account billing cap. Provider invoices remain authoritative. Unstarted and interrupted attempts stay visible in the artifact.
 
-The default models are `gpt-6-luna` and `claude-haiku-4-5-20251001`, with extra reasoning disabled. A different supported model is a configuration change. Use `--models openai-luna` to select one profile or `--repetitions 2` to repeat the same cases within the same invocation budget.
+Configured models include `gpt-6-luna`, `gpt-5.6-luna` and `claude-haiku-4-5-20251001`, with extra reasoning disabled. Select only profiles whose local keys are configured. A different supported model is a configuration change. Use `--models openai-luna` to select one profile or `--repetitions 2` to repeat the same cases within the same invocation budget.
 
 To prepare the entire live experiment for the static viewer, including failed attempts:
 
@@ -86,6 +88,18 @@ pnpm generate
 ```
 
 Publishing replaces the viewer's current dataset; it does not merge or cherry-pick individual trials. `uv run roadtest demo` restores the deterministic scripted demonstration. Review generated public artifacts before committing; they contain model-visible prompts/actions/results, not API keys or provider reasoning internals.
+
+## Repeatability and regressions
+
+```sh
+uv run roadtest run --repetitions 3 --output artifacts/offline-repeated.json
+uv run roadtest report artifacts/offline-repeated.json --k 2
+uv run roadtest regress artifacts/before.json artifacts/after.json
+```
+
+The first command is offline. Scripted consistency tests the harness, not AI reliability. Live repeats require `--live` and share the invocation budget. `pass@k` estimates at least one success; `pass^k` estimates all attempts succeeding. Insufficient samples and unresolved returned-model identities withhold estimates. Matching requires the same task, settings, model versions and prompt. Regression comparisons verify both recordings and return exit code 1 for observed regressions, 2 for invalid evidence, unresolved model identities, or no matching groups. These are observed differences, not significance tests.
+
+Version 3 recordings contain separate checks with explanations and replay evidence links. Version 2 rental recordings remain importable; absent checks are unassessed. The structured receipt checker does not judge arbitrary natural-language messages. Semantic similarity and paid model judges are deliberately not used for booking facts; human review is supported through the replay.
 
 ## Verify
 
@@ -146,4 +160,4 @@ In the local **Live** page, select **OpenAI / GPT-6 Luna** and **OpenAI / GPT-5.
 
 The assignment and step explanations describe observed actions and environment changes. Expand **Technical details** for the exact tool request and response. They do not claim to expose private model reasoning.
 
-GPT-5.6 Luna pricing and support for reasoning disabled were checked against the [official model documentation](https://developers.openai.com/api/docs/models/gpt-5.6-luna) on September 27, 2026.
+Prices and support for reasoning disabled were checked against the official [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) and [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna) documentation on September 27, 2026.

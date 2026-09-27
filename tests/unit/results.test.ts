@@ -24,9 +24,9 @@ describe('honest comparison summaries', () => {
     const bundle = fixture()
     const reference = bundle.trials.filter((t) => t.model === 'scripted-recovery-v1')
     expect(summarize(reference)).toMatchObject({
-      trials: 24,
-      completed: 24,
-      passed: 24,
+      trials: 48,
+      completed: 48,
+      passed: 48,
       live: 0,
       cost: 0,
     })
@@ -51,7 +51,7 @@ describe('honest comparison summaries', () => {
 
 describe('local result imports', () => {
   it('accepts the Python-exported contract', () => {
-    expect(fixture().schema_version).toBe('2.0')
+    expect(fixture().schema_version).toBe('3.0')
   })
   it('rejects invalid JSON, unsupported versions and broken references clearly', () => {
     expect(() => parseBundle('{')).toThrow('valid JSON')

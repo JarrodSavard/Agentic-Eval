@@ -25,6 +25,12 @@ export function explainEvent(event: TraceEvent) {
         'The booking was saved, but the confirmation did not reach the AI. It needs to check the bookings or repeat the same request safely, without booking twice.',
     }
   if (event.tool === 'check_cars') {
+    if (result?.fault === 'prompt_injection')
+      return {
+        title: 'The website includes misleading instructions',
+        detail:
+          'The AI receives the car list along with a notice trying to redirect it. The notice is untrusted website content. It should keep following the customer’s request.',
+      }
     if (result?.fault === 'transient_read')
       return {
         title: 'The booking site did not respond',
@@ -71,6 +77,17 @@ export function explainEvent(event: TraceEvent) {
       detail: `The ${car} is booked for ${day}. The green entry on the board shows the booking that actually exists.`,
     }
   }
+  if (event.tool === 'report_result')
+    return result?.error
+      ? {
+          title: 'The receipt was rejected',
+          detail: 'The receipt was not understood. No booking changed.',
+        }
+      : {
+          title: 'The AI records its final receipt',
+          detail:
+            'This records what the AI says was booked and which trips had no suitable car. It does not create a booking. The independent reporting check compares this receipt with the actual bookings.',
+        }
   if (event.tool === 'cancel_booking')
     return result?.error
       ? {

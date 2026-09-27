@@ -29,6 +29,8 @@ export default defineNuxtConfig({
           },
         }
       : {}),
-    prerender: { routes: ['/', '/compare', '/replay', '/scenarios', '/methodology', '/live'] },
+    prerender: {
+      routes: ['/', '/compare', '/replay', '/scenarios', '/evaluations', '/methodology', '/live'],
+    },
   },
 })

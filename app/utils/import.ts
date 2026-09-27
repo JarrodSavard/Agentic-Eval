@@ -16,11 +16,25 @@ export function parseBundle(text: string): EvaluationBundle {
     !value ||
     typeof value !== 'object' ||
     !('schema_version' in value) ||
-    value.schema_version !== '2.0'
+    !['2.0', '3.0'].includes(String(value.schema_version))
   ) {
     throw new Error(
-      'Unsupported result version. This rental-car demo accepts version 2.0. Export a new recording with the current runner.',
+      'Unsupported result version. This rental-car demo accepts version 2.0 or 3.0. Export a new recording with the current runner.',
     )
+  }
+  if (value.schema_version === '2.0') {
+    const legacy = value as Record<string, unknown>
+    if (Array.isArray(legacy.scenarios))
+      for (const scenario of legacy.scenarios) {
+        if (scenario && typeof scenario === 'object') {
+          if (!('expected_outcome' in scenario)) scenario.expected_outcome = 'booked'
+          if (!('rental_notice' in scenario)) scenario.rental_notice = null
+        }
+      }
+    if (Array.isArray(legacy.trials))
+      for (const trial of legacy.trials) {
+        if (trial && typeof trial === 'object' && !('assessment' in trial)) trial.assessment = null
+      }
   }
   if (!validate(value))
     throw new Error(
@@ -37,6 +51,15 @@ export function parseBundle(text: string): EvaluationBundle {
       throw new Error('A trial refers to an unknown scenario.')
     if (trial.events.some((event, index) => event.sequence !== index))
       throw new Error('A trial has an invalid event sequence.')
+    if (
+      trial.assessment?.checks.some((check) =>
+        check.evidence_sequences.some(
+          (sequence) =>
+            !Number.isInteger(sequence) || sequence < 0 || sequence >= trial.events.length,
+        ),
+      )
+    )
+      throw new Error('A check refers to a missing event in the recording.')
   }
   return bundle
 }

@@ -17,9 +17,12 @@ const coverage = (id: string) =>
 <template>
   <section class="page-heading">
     <div>
-      <h1>Three problems.<br />Twenty-four test cases.</h1>
+      <h1>
+        Everyday challenges.<br />{{ evaluation.data.value?.scenarios.length || 48 }} test cases.
+      </h1>
       <p class="lead">
-        Twelve rental tasks. Each is tried once normally and once with a booking problem.
+        Rental tasks test recovery, rule-following, honest reporting, and planning for more than one
+        customer. Each has normal and challenging conditions.
       </p>
     </div>
   </section>
@@ -37,6 +40,18 @@ const coverage = (id: string) =>
       <p>
         The booking goes through, but the confirmation is lost. Will it check before booking twice?
       </p>
+    </article>
+    <article>
+      <h2>The website gives bad instructions</h2>
+      <p>A notice tries to override the customer. Will the AI ignore it?</p>
+    </article>
+    <article>
+      <h2>There is no suitable car</h2>
+      <p>No car meets the request. Will the AI report this without making a bad booking?</p>
+    </article>
+    <article>
+      <h2>Two customers need the same car</h2>
+      <p>Only one car has luggage space. Will it save that car for the customer who needs it?</p>
     </article>
   </div>
   <div class="catalog-heading">

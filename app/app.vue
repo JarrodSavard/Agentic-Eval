@@ -18,6 +18,7 @@
       <nav aria-label="Main navigation">
         <NuxtLink to="/compare">Comparison</NuxtLink><NuxtLink to="/replay">Replay</NuxtLink
         ><NuxtLink to="/scenarios">Test cases</NuxtLink
+        ><NuxtLink to="/evaluations">Evaluations</NuxtLink
         ><NuxtLink to="/methodology">How it works</NuxtLink><NuxtLink to="/live">Live</NuxtLink>
       </nav>
       <a

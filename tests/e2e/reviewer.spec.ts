@@ -65,11 +65,11 @@ test('reviewer can understand the lab and inspect its evidence', async ({ page }
 test('catalog exposes all scenarios and their actual model coverage', async ({ page }) => {
   await page.goto('./scenarios')
   await expect(
-    page.getByRole('heading', { name: 'Three problems. Twenty-four test cases.' }),
+    page.getByRole('heading', { name: 'Everyday challenges. 48 test cases.' }),
   ).toBeVisible()
-  await expect(page.getByTestId('scenario-row')).toHaveCount(24)
+  await expect(page.getByTestId('scenario-row')).toHaveCount(48)
   await page.getByLabel('Situation').selectOption('fault')
-  await expect(page.getByTestId('scenario-row')).toHaveCount(12)
+  await expect(page.getByTestId('scenario-row')).toHaveCount(24)
 })
 
 test('local import stays local and invalid files are actionable', async ({ page }) => {
@@ -79,7 +79,7 @@ test('local import stays local and invalid files are actionable', async ({ page 
     if (request.method() === 'POST') posts.push(request.url())
   })
   await page.getByLabel('Open result file').setInputFiles('artifacts/test-data/bundle.json')
-  await expect(page.getByRole('status')).toContainText('Loaded 48 trials locally')
+  await expect(page.getByRole('status')).toContainText('Loaded 96 trials locally')
   expect(posts).toEqual([])
   await page.getByLabel('Open result file').setInputFiles({
     name: 'broken.json',
@@ -113,4 +113,28 @@ test('replay explains the assignment and keeps technical evidence expandable', a
   await expect(page.locator('.technical-details pre').first()).toBeHidden()
   await page.getByText('Technical details', { exact: true }).click()
   await expect(page.locator('.technical-details pre').first()).toBeVisible()
+})
+
+test('evaluation coverage explains missing evidence and replay checks link to actions', async ({
+  page,
+}) => {
+  await page.goto('./evaluations')
+  await expect(page.getByRole('heading', { name: 'What are we testing?' })).toBeVisible()
+  await expect(page.getByText('Not enough repeated runs', { exact: false }).first()).toBeVisible()
+  await page.goto('./replay')
+  const report = page.getByRole('region', { name: 'Evaluation report' })
+  await expect(report).toContainText('The final receipt matches reality')
+  await report.getByRole('button').first().click()
+  await expect(page.getByLabel('Replay event')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(
+    false,
+  )
+})
+
+test('imported checks keep a provenance warning on evaluations and replay', async ({ page }) => {
+  await page.goto('./evaluations')
+  await page.getByLabel('Open result file').setInputFiles('artifacts/test-data/bundle.json')
+  await expect(page.getByRole('note')).toContainText('Format validated only')
+  await page.getByRole('link', { name: 'Replay', exact: true }).click()
+  await expect(page.getByRole('note')).toContainText('have not been independently verified')
 })

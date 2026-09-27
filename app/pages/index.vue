@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { featuredTrial } from '~/utils/results'
+import { featuredTrial, outcome } from '~/utils/results'
 import type { TrialResult } from '~/generated/evaluation'
 const evaluation = useEvaluation()
 const example = ref<TrialResult | null>(null)
@@ -64,9 +64,7 @@ const liveCount = computed(
         />
         <div v-else class="loading-board">Loading the car bookings…</div>
         <div class="evidence-outcome">
-          <span class="outcome-mark">{{
-            example?.grade.success ? 'Booking completed' : 'Inspect the outcome'
-          }}</span
+          <span class="outcome-mark">{{ example ? outcome(example) : 'Inspect the outcome' }}</span
           ><span v-if="example">{{ example.tool_calls }} actions · watch every step</span>
         </div>
       </div>
@@ -78,8 +76,15 @@ const liveCount = computed(
     </div>
   </section>
   <section class="experiment-strip" aria-label="Experiment scope">
-    <p><strong>24</strong> test cases</p>
-    <p><strong>3</strong> everyday problems</p>
+    <p>
+      <strong>{{ evaluation.data.value?.scenarios.length || 48 }}</strong> test cases
+    </p>
+    <p>
+      <strong>{{
+        new Set(evaluation.data.value?.scenarios.map((s) => s.family) || []).size || 6
+      }}</strong>
+      everyday challenges
+    </p>
     <p>
       <strong>{{ liveCount }}</strong> real AI attempts
     </p>
@@ -114,7 +119,7 @@ const liveCount = computed(
           These short runs show what happened in this example. They do not prove that one AI is
           always better.
         </p>
-        <NuxtLink class="text-link" to="/methodology">How the test works <ArrowIcon /></NuxtLink>
+        <NuxtLink class="text-link" to="/evaluations">See every evaluation <ArrowIcon /></NuxtLink>
       </article>
     </div>
   </section>

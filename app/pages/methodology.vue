@@ -57,7 +57,8 @@
         <p>
           A reproducible environment does not make a model’s behavior deterministic. Provider
           versions, service conditions, and prompt choices affect results. The full scenario library
-          has 24 cases; model coverage is shown per scenario.
+          has 48 cases across six challenge families; model coverage is shown per scenario.
+          <NuxtLink to="/evaluations">See all evaluation types and their evidence.</NuxtLink>
         </p>
         <p>
           Costs are estimates from a dated rate table and reported usage, not invoices. Unknown

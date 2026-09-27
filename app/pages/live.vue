@@ -7,6 +7,7 @@ const router = useRouter()
 const selectedProfiles = ref<string[]>([])
 const baseId = ref('car_unavailable-01')
 const budget = ref(0.5)
+const repetitions = ref(1)
 const position = ref(0)
 const follow = ref(true)
 const run = live.snapshot
@@ -33,7 +34,8 @@ const reserved = computed(
 )
 const incompleteUsage = computed(() => run.value?.bundle.trials.some((t) => !t.usage_complete))
 const activeKey = computed(
-  () => `${run.value?.run_id}/${run.value?.active_scenario_id}/${run.value?.active_agent}`,
+  () =>
+    `${run.value?.run_id}/${run.value?.active_scenario_id}/${run.value?.active_agent}/${run.value?.active_repetition}`,
 )
 watch(live.bootstrap, (config) => {
   if (!selectedProfiles.value.length && config)
@@ -58,6 +60,7 @@ function start() {
     profile_ids: selectedProfiles.value,
     base_id: baseId.value,
     budget_usd: budget.value,
+    repetitions: repetitions.value,
   })
 }
 function inspect(index: number) {
@@ -112,7 +115,10 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
     <TaskBrief v-if="briefScenario" :scenario="briefScenario" />
     <p class="table-note">
       Select both Luna versions to compare them: each gets the same customer request and limits. Two
-      models create four trials: two normal runs and two with a deliberate failure.
+      models create {{ 4 * repetitions }} trials at {{ repetitions }} attempt{{
+        repetitions === 1 ? '' : 's'
+      }}
+      per situation. All repetitions share the same budget.
     </p>
     <form class="live-form" @submit.prevent="start">
       <fieldset :disabled="running || live.submitting.value">
@@ -140,6 +146,17 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
             {{ task.title }}
           </option>
         </select></label
+      >
+      <label
+        >Attempts per situation<input
+          v-model.number="repetitions"
+          type="number"
+          min="1"
+          max="10"
+          step="1"
+          required
+          :disabled="running"
+        /><small>Repeat identical tasks to measure consistency.</small></label
       >
       <label
         >Experiment budget (USD)<input
@@ -184,8 +201,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
           }}</strong>
           <p>
             {{ run.active_agent }} ·
-            {{ scenario?.variant === 'fault' ? 'With a problem' : 'No problem' }} ·
-            {{ run.bundle.trials.length }} trials recorded
+            {{ scenario?.variant === 'fault' ? 'With a problem' : 'No problem' }} · attempt
+            {{ run.active_repetition || 1 }} · {{ run.bundle.trials.length }} trials recorded
           </p>
         </div>
         <button

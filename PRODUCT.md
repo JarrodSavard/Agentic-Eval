@@ -6,7 +6,7 @@ Software engineering hiring teams inspect a working portfolio application and it
 
 ## Product truth
 
-A fictional rental desk provides 24 deterministic scenarios: twelve tasks paired with clean/fault variants. Model trials are stochastic. Scripted demonstrations are not evidence of model performance. Genuine runs are small illustrative samples, never a model ranking.
+A fictional rental desk provides 48 deterministic scenarios: twenty-four tasks paired with normal/challenging variants. Model trials are stochastic. Scripted demonstrations are not evidence of model performance. Genuine runs are small illustrative samples, never a model ranking.
 
 ## Platform and stack
 

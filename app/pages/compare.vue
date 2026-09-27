@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { assessmentNote } from '~/utils/evaluations'
 import {
   familyLabels,
   filterTrials,
@@ -153,6 +154,7 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
                 trial.status === 'completed' && trial.grade.success ? 'passed' : 'failed',
               ]"
               >{{ outcome(trial) }}</span
+            ><span class="cell-detail">{{ assessmentNote(trial.assessment) }}</span
             ><span v-if="trial.grade.violations.length" class="cell-detail">{{
               trial.grade.violations.join(', ')
             }}</span>
@@ -187,4 +189,14 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
     A completed booking requires a finished run and a booking that passes every rule. An unfinished
     run is never counted as a pass. Scripted timing and token metrics are intentionally omitted.
   </p>
+  <p class="table-note">
+    The booking outcome and behavior checks are separate.
+    <NuxtLink to="/evaluations">See what each evaluation tests.</NuxtLink> “No suitable car” means
+    the checker confirmed that no valid option existed.
+  </p>
+  <ReliabilityReport
+    v-if="evaluation.data.value"
+    :bundle="evaluation.data.value"
+    :trials="trials"
+  />
 </template>
