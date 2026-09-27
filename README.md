@@ -17,6 +17,8 @@ Can an AI book the right rental car when something goes wrong? This portfolio pr
 
 The rental-car demo uses **artifact, scenario and prompt version 2.0**.
 
+**Published real comparison:** GPT-6 Luna and GPT-5.6 Luna each attempted Alex’s one-day rental with a child seat, once normally and once after the Blue SUV became unavailable. All four attempts passed. Both chose the City hatchback without a rejected booking, so this sample shows valid alternative choices—not recovery from a booking rejection. Total estimated API cost: **$0.0015746**. The sample covers 2 of 24 scenarios and is not a model ranking.
+
 The reference scripted agent passes all 24 rental scenarios; the deliberately faulty baseline demonstrates failed outcomes. Scripted examples are clearly labeled and make no claims about real model performance. Genuine rental recordings, when published, contain every attempt from the experiment, not just successful ones. Tiny samples illustrate behavior; they do not establish a ranking.
 
 ## Run locally

@@ -1,30 +1,37 @@
 {
-  "id": "transient_read-01-fault--scripted-optimistic-v1--1",
-  "scenario_id": "transient_read-01-fault",
-  "agent": "Optimistic baseline",
-  "provider": "scripted",
-  "model": "scripted-optimistic-v1",
-  "returned_model": null,
-  "source": "scripted",
+  "id": "car_unavailable-01-fault--gpt-5.6-luna--1",
+  "scenario_id": "car_unavailable-01-fault",
+  "agent": "OpenAI / GPT-5.6 Luna",
+  "provider": "openai",
+  "model": "gpt-5.6-luna",
+  "returned_model": "gpt-5.6-luna",
+  "source": "live",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-26T00:00:00+00:00",
-  "latency_ms": 0.0,
-  "tool_calls": 1,
+  "started_at": "2026-09-27T19:53:22.196876+00:00",
+  "latency_ms": 4016.703,
+  "tool_calls": 2,
   "invalid_actions": 0,
   "usage": {
-    "input_tokens": 0,
-    "output_tokens": 0
+    "input_tokens": 2036,
+    "output_tokens": 108
   },
-  "estimated_cost_usd": 0.0,
+  "estimated_cost_usd": 0.0005368,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
-    "policy": "scripted-optimistic-v1"
+    "id": "openai-5.6-luna",
+    "label": "OpenAI / GPT-5.6 Luna",
+    "provider": "openai",
+    "model": "gpt-5.6-luna",
+    "input_per_million": "0.20",
+    "output_per_million": "1.20",
+    "price_checked_at": "2026-09-27",
+    "reasoning": "none"
   },
   "grade": {
-    "success": false,
-    "completed_requests": 0,
+    "success": true,
+    "completed_requests": 1,
     "total_requests": 1,
     "violations": []
   },
@@ -37,7 +44,7 @@
           "child_seat",
           "large_boot"
         ],
-        "available": true
+        "available": false
       },
       {
         "id": "red-suv",
@@ -63,6 +70,12 @@
         "request_id": "another-customer",
         "car_id": "blue-suv",
         "day": "2026-10-01"
+      },
+      {
+        "id": "reservation-1",
+        "request_id": "trip-1",
+        "car_id": "city-car",
+        "day": "2026-10-03"
       }
     ]
   },
@@ -74,9 +87,46 @@
       "tool": "check_cars",
       "arguments": {},
       "result": {
-        "data": {},
-        "error": "temporary_unavailable",
-        "fault": "transient_read"
+        "data": {
+          "cars": [
+            {
+              "id": "blue-suv",
+              "name": "Blue SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": true
+            },
+            {
+              "id": "red-suv",
+              "name": "Red SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": true
+            },
+            {
+              "id": "city-car",
+              "name": "City hatchback",
+              "features": [
+                "child_seat"
+              ],
+              "available": true
+            }
+          ],
+          "bookings": [
+            {
+              "id": "existing-1",
+              "request_id": "another-customer",
+              "car_id": "blue-suv",
+              "day": "2026-10-01"
+            }
+          ]
+        },
+        "error": null,
+        "fault": "car_unavailable"
       },
       "text": null,
       "state": {
@@ -88,7 +138,7 @@
               "child_seat",
               "large_boot"
             ],
-            "available": true
+            "available": false
           },
           {
             "id": "red-suv",
@@ -120,12 +170,29 @@
     },
     {
       "sequence": 1,
-      "kind": "message",
+      "kind": "tool",
       "turn": 2,
-      "tool": null,
-      "arguments": null,
-      "result": null,
-      "text": "The scripted policy stopped after a tool error.",
+      "tool": "book_car",
+      "arguments": {
+        "request_id": "trip-1",
+        "car_id": "city-car",
+        "day": "2026-10-03",
+        "idempotency_key": "trip-1-2026-10-03-city-car"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "city-car",
+            "day": "2026-10-03"
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
       "state": {
         "cars": [
           {
@@ -135,7 +202,7 @@
               "child_seat",
               "large_boot"
             ],
-            "available": true
+            "available": false
           },
           {
             "id": "red-suv",
@@ -161,6 +228,65 @@
             "request_id": "another-customer",
             "car_id": "blue-suv",
             "day": "2026-10-01"
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "city-car",
+            "day": "2026-10-03"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "message",
+      "turn": 3,
+      "tool": null,
+      "arguments": null,
+      "result": null,
+      "text": "Booked **one City hatchback** with a child seat for Alex’s family day out on **October 3, 2026**.\n\nReservation: **reservation-1**",
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "city-car",
+            "day": "2026-10-03"
           }
         ]
       }
