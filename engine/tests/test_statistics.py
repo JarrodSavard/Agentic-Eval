@@ -1,8 +1,21 @@
+import json
+from pathlib import Path
+
 import pytest
 from roadtest.agents import ScriptedAgent
 from roadtest.contracts import ExperimentConfig
 from roadtest.runner import make_bundle, run_trial
 from roadtest.scenarios import catalog
+
+
+def test_python_and_browser_share_hand_calculated_examples():
+    from roadtest.statistics import pass_estimates
+
+    rows = json.loads(Path("contracts/reliability-examples.json").read_text(encoding="utf-8"))
+    for row in rows:
+        at_least, every = pass_estimates(row["n"], row["c"], row["k"])
+        assert at_least == row["atLeast"]
+        assert every == row["every"]
 
 
 def sample(successes=2, total=3):
@@ -44,6 +57,21 @@ def test_incomplete_trials_stay_in_attempt_denominator_and_not_run_is_explicit()
     row = summarize_reliability(bundle, 2)[0]
     assert row["attempts"] == 3 and row["successes"] == 1 and row["incomplete"] == 2
     assert row["not_run"] == 1 and row["pass_all_k"] == 0
+
+
+def test_unknown_returned_model_withholds_estimates_for_the_requested_configuration():
+    from roadtest.statistics import summarize_reliability
+
+    bundle = sample(3, 3)
+    for trial in bundle.trials:
+        trial.source = "live"
+        trial.returned_model = "confirmed-snapshot"
+    bundle.trials[-1].returned_model = None
+    bundle.trials[-1].status = "budget_exhausted"
+    rows = summarize_reliability(bundle, 2)
+    assert rows[0]["attempts"] == 2
+    assert rows[0]["unresolved_attempts"] == 1
+    assert all(row["pass_all_k"] is None and row["pass_at_k"] is None for row in rows)
 
 
 def test_settings_source_and_returned_model_cannot_be_silently_pooled():

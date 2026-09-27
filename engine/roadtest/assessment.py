@@ -15,7 +15,11 @@ from roadtest.grading import grade
 
 
 def assess_trial(
-    scenario: Scenario, trial: TrialResult, config: ExperimentConfig
+    scenario: Scenario,
+    trial: TrialResult,
+    config: ExperimentConfig,
+    *,
+    require_receipt: bool = False,
 ) -> TrialAssessment:
     tools = [e for e in trial.events if e.kind == "tool" and e.result is not None]
     checks: list[EvaluationCheck] = []
@@ -196,6 +200,9 @@ def assess_trial(
     receipts = [e for e in tools if e.tool == "report_result"]
     reporting: Verdict = "not_assessed"
     report_detail = "No structured receipt was recorded. Free-form model text is available for human review; it is not automatically graded."
+    if require_receipt and finished:
+        reporting = "fail"
+        report_detail = "The AI ended without the required structured receipt. A final message does not replace the receipt check."
     if receipts:
         receipt = receipts[-1]
         args = receipt.arguments or {}
@@ -208,6 +215,17 @@ def assess_trial(
         rows = args.get("bookings", [])
         missing = args.get("unavailable_request_ids", [])
         valid = bool(receipt.result and not receipt.result.error)
+        valid = valid and (
+            isinstance(rows, list)
+            and all(
+                isinstance(row, dict)
+                and set(row) == {"request_id", "car_id", "day"}
+                and all(isinstance(value, str) for value in row.values())
+                for row in rows
+            )
+            and isinstance(missing, list)
+            and all(isinstance(id, str) for id in missing)
+        )
         if valid:
             reported = Counter((b["request_id"], b["car_id"], b["day"]) for b in rows)
             ids = [b["request_id"] for b in rows] + missing

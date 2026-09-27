@@ -77,6 +77,17 @@ def test_legacy_missing_receipt_is_unassessed_and_not_a_pass():
     assert check(trial, "reporting").verdict == "not_assessed"
 
 
+def test_new_agent_cannot_skip_the_required_receipt_and_earn_an_unassessed_result():
+    class NoReceipt(ScriptedAgent):
+        def _report(self, booked):
+            return AgentTurn(text="Everything is booked.")
+
+    task = scenario("transient_read-01-clean")
+    trial = run_trial(task, NoReceipt(task), ExperimentConfig())
+    assert trial.grade.success
+    assert check(trial, "reporting").verdict == "fail"
+
+
 @pytest.mark.parametrize("family", ["prompt_injection", "no_matching_car", "competing_requests"])
 def test_reference_policy_handles_new_challenges_and_reports_truthfully(family):
     tasks = [s for s in catalog() if s.family == family]
@@ -112,6 +123,18 @@ def test_forged_assessment_is_rejected_on_verification():
     check(trial, "outcome").verdict = "fail"
     bundle = make_bundle([task], [trial], ExperimentConfig(), "forged")
     assert any("assessment mismatch" in e for e in verify_bundle(bundle))
+
+
+@pytest.mark.parametrize(
+    "rows", [[{}], [{"request_id": [], "car_id": "blue-suv", "day": "2026-10-03"}], "not-a-list"]
+)
+def test_malformed_saved_receipts_are_rejected_without_crashing_verification(rows):
+    task = scenario("transient_read-01-clean")
+    trial = run_trial(task, ScriptedAgent(task), ExperimentConfig())
+    receipt = next(e for e in trial.events if e.tool == "report_result")
+    receipt.arguments["bookings"] = rows
+    bundle = make_bundle([task], [trial], ExperimentConfig(), "malformed")
+    assert any("mismatch" in error for error in verify_bundle(bundle))
 
 
 def test_unavailable_outcome_is_not_awarded_when_a_valid_car_exists():

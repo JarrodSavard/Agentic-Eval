@@ -195,7 +195,7 @@ def run_trial(
         final_state=sim.state,
         events=events,
     )
-    trial.assessment = assess_trial(scenario, trial, config)
+    trial.assessment = assess_trial(scenario, trial, config, require_receipt=True)
     return trial
 
 

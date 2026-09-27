@@ -70,7 +70,10 @@ def verify_bundle(bundle: EvaluationBundle) -> list[str]:
             errors.append(f"{trial.id}: grade mismatch")
         if (
             trial.assessment is not None
-            and assess_trial(scenario, trial, bundle.config) != trial.assessment
+            and assess_trial(
+                scenario, trial, bundle.config, require_receipt=bundle.prompt_version == "3.0"
+            )
+            != trial.assessment
         ):
             errors.append(f"{trial.id}: assessment mismatch")
         if (

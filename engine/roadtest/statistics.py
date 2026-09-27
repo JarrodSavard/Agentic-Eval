@@ -44,9 +44,24 @@ def summarize_reliability(bundle: EvaluationBundle, k: int = 2) -> list[dict[str
     if k < 1:
         raise ValueError("k must be at least 1")
     rows = []
-    for key, trials in _groups(bundle).items():
+    groups = _groups(bundle)
+
+    def requested_key(key: str) -> str:
+        value = json.loads(key)
+        value.pop("returned_model")
+        return json.dumps(value, sort_keys=True)
+
+    unresolved: dict[str, int] = defaultdict(int)
+    for key, trials in groups.items():
+        unresolved[requested_key(key)] += sum(
+            t.source == "live" and t.returned_model is None for t in trials
+        )
+    for key, trials in groups.items():
         successes = sum(t.status == "completed" and t.grade.success for t in trials)
         at_least, every = pass_estimates(len(trials), successes, k)
+        unknown = unresolved[requested_key(key)]
+        if unknown:
+            at_least = every = None
         rows.append(
             {
                 "group_key": key,
@@ -58,6 +73,7 @@ def summarize_reliability(bundle: EvaluationBundle, k: int = 2) -> list[dict[str
                 "successes": successes,
                 "incomplete": sum(t.status != "completed" for t in trials),
                 "not_run": sum(t.status == "not_run" for t in trials),
+                "unresolved_attempts": unknown,
                 "k": k,
                 "pass_at_k": at_least,
                 "pass_all_k": every,

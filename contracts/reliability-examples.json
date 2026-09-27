@@ -1,0 +1,10 @@
+[
+  { "n": 0, "c": 0, "k": 2, "atLeast": null, "every": null },
+  { "n": 1, "c": 1, "k": 2, "atLeast": null, "every": null },
+  { "n": 3, "c": 2, "k": 2, "atLeast": 1, "every": 0.3333333333333333 },
+  { "n": 5, "c": 3, "k": 2, "atLeast": 0.9, "every": 0.3 },
+  { "n": 3, "c": 0, "k": 2, "atLeast": 0, "every": 0 },
+  { "n": 3, "c": 3, "k": 2, "atLeast": 1, "every": 1 },
+  { "n": 2, "c": 1, "k": 1, "atLeast": 0.5, "every": 0.5 },
+  { "n": 2, "c": 1, "k": 2, "atLeast": 1, "every": 0 }
+]
