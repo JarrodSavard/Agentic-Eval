@@ -7,7 +7,7 @@ from roadtest.simulator import tool_definitions
 
 def test_rental_tasks_use_everyday_features_and_calendar_dates():
     tasks = catalog()
-    assert len(tasks) == 24
+    assert len(tasks) == 48
     assert tasks[0].requests[0].customer == "Alex"
     assert tasks[0].requests[0].required_feature == "child_seat"
     assert tasks[0].requests[0].allowed_days == ["2026-10-03", "2026-10-15"]
@@ -18,12 +18,17 @@ def test_models_receive_rental_prompts_and_tools():
     assert "rental car" in SYSTEM_PROMPT
     assert "Alex" in task_prompt(catalog()[0])
     assert "child seat" in task_prompt(catalog()[0])
-    assert {t["name"] for t in tool_definitions()} == {"check_cars", "book_car", "cancel_booking"}
+    assert {t["name"] for t in tool_definitions()} == {
+        "check_cars",
+        "book_car",
+        "cancel_booking",
+        "report_result",
+    }
     assert "observator" not in SYSTEM_PROMPT.lower()
 
 
 def test_domain_change_has_new_artifact_and_prompt_versions():
     bundle = make_bundle(catalog(), [], ExperimentConfig(), "rental-test")
-    assert bundle.schema_version == "2.0"
-    assert bundle.prompt_version == "2.0"
-    assert all(s.version == "2.0" for s in bundle.scenarios)
+    assert bundle.schema_version == "3.0"
+    assert bundle.prompt_version == "3.0"
+    assert {s.version for s in bundle.scenarios} == {"2.0", "3.0"}

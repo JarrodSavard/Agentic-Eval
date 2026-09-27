@@ -23,7 +23,7 @@ def reservation(scenario, car="blue-suv", key="request-1"):
 
 
 def test_catalog_contains_twelve_equivalent_clean_fault_pairs():
-    scenarios = catalog()
+    scenarios = [s for s in catalog() if s.version == "2.0"]
     assert len(scenarios) == 24
     assert len({s.id for s in scenarios}) == 24
     for s in scenarios[::2]:

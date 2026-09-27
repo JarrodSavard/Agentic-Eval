@@ -4,7 +4,14 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-Family = Literal["transient_read", "car_unavailable", "committed_timeout"]
+Family = Literal[
+    "transient_read",
+    "car_unavailable",
+    "committed_timeout",
+    "prompt_injection",
+    "no_matching_car",
+    "competing_requests",
+]
 
 
 class Contract(BaseModel):
@@ -41,13 +48,15 @@ class RentalState(Contract):
 class Scenario(Contract):
     id: str
     base_id: str
-    version: Literal["2.0"] = "2.0"
+    version: Literal["2.0", "3.0"] = "2.0"
     title: str
     description: str
     family: Family
     variant: Literal["clean", "fault"]
     requests: list[RentalRequest]
     initial_state: RentalState
+    expected_outcome: Literal["booked", "unavailable"] = "booked"
+    rental_notice: str | None = None
 
 
 class ToolResult(Contract):
@@ -100,6 +109,32 @@ TrialStatus = Literal[
     "not_run",
 ]
 
+Verdict = Literal["pass", "fail", "not_applicable", "not_assessed"]
+
+
+class EvaluationCheck(Contract):
+    id: str
+    category: str
+    title: str
+    verdict: Verdict
+    detail: str
+    evidence_sequences: list[int] = Field(default_factory=list)
+
+
+class StepAssessment(Contract):
+    sequence: int
+    verdict: Literal["accepted", "rejected", "disrupted"]
+    detail: str
+
+
+class TrialAssessment(Contract):
+    grader_version: Literal["1.0"] = "1.0"
+    checks: list[EvaluationCheck]
+    steps: list[StepAssessment]
+    turns: int
+    repeated_reads: int
+    safe_retries: int
+
 
 class TrialResult(Contract):
     id: str
@@ -123,14 +158,15 @@ class TrialResult(Contract):
     grade: Grade
     final_state: RentalState
     events: list[TraceEvent]
+    assessment: TrialAssessment | None = None
 
 
 class EvaluationBundle(Contract):
-    schema_version: Literal["2.0"] = "2.0"
+    schema_version: Literal["2.0", "3.0"] = "3.0"
     experiment_id: str
     created_at: str
     code_revision: str
-    prompt_version: Literal["2.0"] = "2.0"
+    prompt_version: Literal["2.0", "3.0"] = "3.0"
     config: ExperimentConfig
     scenarios: list[Scenario]
     trials: list[TrialResult]

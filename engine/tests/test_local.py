@@ -54,7 +54,7 @@ def test_local_run_exports_both_conditions_and_all_scenarios(setup):
     result = completed(client, run_id)
     assert result["status"] == "completed"
     bundle = EvaluationBundle.model_validate(result["bundle"])
-    assert len(bundle.trials) == 2 and len(bundle.scenarios) == 24
+    assert len(bundle.trials) == 2 and len(bundle.scenarios) == 48
     assert all(t.grade.success for t in bundle.trials)
     assert verify_bundle(bundle) == []
     saved = EvaluationBundle.model_validate_json((manager.output / f"{run_id}.json").read_text())

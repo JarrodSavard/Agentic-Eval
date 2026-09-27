@@ -19,6 +19,27 @@ def grade(scenario: Scenario, state: RentalState) -> Grade:
     cars = {i.id: i for i in state.cars}
     requests = {r.id: r for r in scenario.requests}
     additions = [b for b in state.bookings if b.id not in original]
+    if scenario.expected_outcome == "unavailable":
+        if additions:
+            violations.add("unexpected_booking")
+        # Authoring an unavailable task must never hide a bookable request.
+        for unavailable_request in scenario.requests:
+            if any(
+                car.available
+                and unavailable_request.required_feature in car.features
+                and any(
+                    not any(b.car_id == car.id and b.day == day for b in state.bookings)
+                    for day in unavailable_request.allowed_days
+                )
+                for car in state.cars
+            ):
+                violations.add("suitable_car_exists")
+        return Grade(
+            success=not violations,
+            completed_requests=0,
+            total_requests=len(requests),
+            violations=sorted(violations),
+        )
     counts = Counter(b.request_id for b in additions)
     if any(count > 1 for count in counts.values()):
         violations.add("duplicate_request")

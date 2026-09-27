@@ -8,8 +8,8 @@ def test_offline_cli_exports_all_reference_and_optimistic_trials(tmp_path):
     output = tmp_path / "offline.json"
     assert main(["run", "--output", str(output)]) == 0
     bundle = EvaluationBundle.model_validate_json(output.read_text())
-    assert len(bundle.scenarios) == 24
-    assert len(bundle.trials) == 48
+    assert len(bundle.scenarios) == 48
+    assert len(bundle.trials) == 96
     assert all(t.source == "scripted" for t in bundle.trials)
     assert main(["verify", str(output)]) == 0
 
@@ -23,7 +23,7 @@ def test_demo_export_is_reproducible_and_summary_excludes_trace_bodies(tmp_path)
         str(p.relative_to(directory)): p.read_bytes() for p in directory.rglob("*.json")
     }
     summary = json.loads((directory / "index.json").read_text())
-    assert len(summary["trials"]) == 48
+    assert len(summary["trials"]) == 96
     assert all("events" not in t for t in summary["trials"])
 
 

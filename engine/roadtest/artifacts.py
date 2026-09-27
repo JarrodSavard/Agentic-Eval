@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from roadtest.assessment import assess_trial
 from roadtest.contracts import EvaluationBundle
 from roadtest.grading import grade
 from roadtest.simulator import Simulator
@@ -67,4 +68,15 @@ def verify_bundle(bundle: EvaluationBundle) -> list[str]:
             errors.append(f"{trial.id}: final state mismatch")
         if grade(scenario, trial.final_state) != trial.grade:
             errors.append(f"{trial.id}: grade mismatch")
+        if (
+            trial.assessment is not None
+            and assess_trial(scenario, trial, bundle.config) != trial.assessment
+        ):
+            errors.append(f"{trial.id}: assessment mismatch")
+        if (
+            bundle.schema_version == "3.0"
+            and trial.status != "not_run"
+            and trial.assessment is None
+        ):
+            errors.append(f"{trial.id}: missing assessment")
     return errors

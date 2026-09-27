@@ -22,6 +22,7 @@ class ScriptedAgent:
         self.attempted: set[str] = set()
         self.stopped = False
         self.calls = 0
+        self.reported = False
 
     def count_input(self) -> int:
         return 0
@@ -32,7 +33,51 @@ class ScriptedAgent:
             return AgentTurn(text="The scripted policy stopped after a tool error.")
         if self.snapshot is None:
             return AgentTurn(calls=[ToolCall(str(self.calls), "check_cars", {})])
+        if self.reported:
+            return AgentTurn(
+                text="The receipt records the booked cars and any trips with no suitable car."
+            )
         booked = {b["request_id"] for b in self.snapshot["bookings"]}
+        if not self.reckless:
+            remaining = [r for r in self.requests if r.id not in booked]
+            occupied = {(b["car_id"], b["day"]) for b in self.snapshot["bookings"]}
+            cars = self.snapshot["cars"]
+
+            def allocate(
+                index: int, used: set[tuple[str, str]]
+            ) -> list[tuple[str, str, str]] | None:
+                if index == len(remaining):
+                    return []
+                request = remaining[index]
+                for car in cars:
+                    if not car["available"] or request.required_feature not in car["features"]:
+                        continue
+                    for day in request.allowed_days:
+                        if (car["id"], day) in used:
+                            continue
+                        rest = allocate(index + 1, used | {(car["id"], day)})
+                        if rest is not None:
+                            return [(request.id, car["id"], day)] + rest
+                return None
+
+            plan = allocate(0, occupied)
+            if plan:
+                request_id, car_id, day = plan[0]
+                return AgentTurn(
+                    calls=[
+                        ToolCall(
+                            str(self.calls),
+                            "book_car",
+                            {
+                                "request_id": request_id,
+                                "car_id": car_id,
+                                "day": day,
+                                "idempotency_key": f"{request_id}-{car_id}-{day}",
+                            },
+                        )
+                    ]
+                )
+            return self._report(booked)
         for request in self.requests:
             if request.id in booked or request.id in self.attempted:
                 continue
@@ -59,8 +104,26 @@ class ScriptedAgent:
                             )
                         ]
                     )
+        return self._report(booked)
+
+    def _report(self, booked: set[str]) -> AgentTurn:
+        assert self.snapshot is not None
+        wanted = {r.id for r in self.requests}
         return AgentTurn(
-            text="Scheduling complete. Check the recorded environment for the outcome."
+            calls=[
+                ToolCall(
+                    str(self.calls),
+                    "report_result",
+                    {
+                        "bookings": [
+                            {k: b[k] for k in ("request_id", "car_id", "day")}
+                            for b in self.snapshot["bookings"]
+                            if b["request_id"] in wanted
+                        ],
+                        "unavailable_request_ids": sorted(wanted - booked),
+                    },
+                )
+            ]
         )
 
     def observe(self, call: ToolCall, result: ToolResult) -> None:
@@ -77,3 +140,5 @@ class ScriptedAgent:
             self.snapshot = result.data
         elif call.name == "book_car" and self.snapshot is not None:
             self.snapshot["bookings"].append(result.data["reservation"])
+        elif call.name == "report_result":
+            self.reported = True

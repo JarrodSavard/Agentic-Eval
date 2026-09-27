@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from time import perf_counter
 
+from roadtest.assessment import assess_trial
 from roadtest.budget import Budget, BudgetExceeded
 from roadtest.contracts import (
     EvaluationBundle,
@@ -171,7 +172,7 @@ def run_trial(
                 state=sim.state.model_copy(deep=True),
             )
         )
-    return TrialResult(
+    trial = TrialResult(
         id=f"{scenario.id}--{agent.model}--{repetition}",
         scenario_id=scenario.id,
         agent=agent.name,
@@ -194,6 +195,8 @@ def run_trial(
         final_state=sim.state,
         events=events,
     )
+    trial.assessment = assess_trial(scenario, trial, config)
+    return trial
 
 
 def make_bundle(
