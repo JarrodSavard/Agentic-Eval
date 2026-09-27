@@ -29,8 +29,8 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
 <template>
   <section class="page-heading">
     <div>
-      <h1>Compare behavior,<br />not promises.</h1>
-      <p class="lead">Outcomes and effort, with the evidence one click away.</p>
+      <h1>Which AI got<br />the booking right?</h1>
+      <p class="lead">Compare the same trip, then watch how each AI handled the problem.</p>
     </div>
     <ResultImport />
   </section>
@@ -42,16 +42,16 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
     <span class="status-dot"></span
     >{{
       summary.live
-        ? 'Recorded model attempts are illustrative; this sample does not establish a ranking.'
-        : 'Scripted demonstration — these are deterministic policies, not Claude or OpenAI results.'
+        ? 'Real AI attempts are illustrative; this sample does not establish a ranking.'
+        : 'Scripted example — these are prewritten actions, not real AI results.'
     }}
   </div>
   <section class="comparison-guide" aria-label="How to read this comparison">
-    <h2>Did it finish the job when something went wrong?</h2>
+    <h2>Start with the booking result.</h2>
     <p>
-      Compare the same task under <strong>Clean control</strong> (nothing deliberately breaks) and
-      <strong>Failure injected</strong> (the environment changes). A successful model leaves valid
-      bookings, even if an earlier action was rejected.
+      Each AI tries the same trip with <strong>No problem</strong> and
+      <strong>With a problem</strong>. “Booking completed” means the customer got a suitable car on
+      an allowed date. A rejected attempt is okay if the AI recovers.
     </p>
     <p v-if="models.length === 1">
       This recording contains one model. To compare GPT-6 Luna with GPT-5.6 Luna,
@@ -61,42 +61,46 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
     <dl>
       <div>
         <dt>Outcome</dt>
-        <dd>Checked from actual bookings, not the model�s claim.</dd>
+        <dd>Checked from actual bookings, not the model's claim.</dd>
       </div>
       <div>
-        <dt>Calls / invalid</dt>
-        <dd>Tool actions / rejected attempts. A rejection is not necessarily a failed task.</dd>
+        <dt>Actions / rejected</dt>
+        <dd>
+          Requests to the booking site / rejected requests. An AI can recover from a rejection.
+        </dd>
       </div>
       <div>
-        <dt>Latency &amp; tokens</dt>
-        <dd>Elapsed time and text processed. These describe effort, not correctness.</dd>
+        <dt>Time taken &amp; tokens</dt>
+        <dd>
+          How long it took and how much text the AI processed. Faster does not always mean better.
+        </dd>
       </div>
     </dl>
   </section>
   <div class="filters">
     <label
-      >Failure family<select v-model="family">
-        <option value="">All failure families</option>
+      >Problem type<select v-model="family">
+        <option value="">All problems</option>
         <option v-for="(label, key) in familyLabels" :key="key" :value="key">{{ label }}</option>
       </select></label
     ><label
-      >Agent<select v-model="model">
-        <option value="">All agents</option>
+      >AI<select v-model="model">
+        <option value="">All AIs</option>
         <option v-for="[id, label] in models" :key="id" :value="id">{{ label }}</option>
       </select></label
     ><label
       >Conditions<select v-model="variant">
-        <option value="">Clean + failure</option>
-        <option value="clean">Clean only</option>
-        <option value="fault">Failure only</option>
+        <option value="">Both situations</option>
+        <option value="clean">No problem</option>
+        <option value="fault">With a problem</option>
       </select></label
     >
   </div>
   <div class="results-summary">
     <span
-      ><strong>{{ summary.trials }}</strong> trials shown</span
+      ><strong>{{ summary.trials }}</strong> attempts shown</span
     ><span
-      ><strong>{{ summary.passed }}</strong> tasks achieved</span
+      ><strong>{{ summary.passed }}</strong> successful attempts</span
     ><span
       ><strong>{{ summary.incomplete }}</strong> incomplete</span
     ><span
@@ -118,11 +122,11 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
       </caption>
       <thead>
         <tr>
-          <th>Task / conditions</th>
-          <th>Agent</th>
+          <th>Trip / situation</th>
+          <th>AI</th>
           <th>Outcome</th>
-          <th>Calls / invalid</th>
-          <th>Latency</th>
+          <th>Actions / rejected</th>
+          <th>Time taken</th>
           <th>Tokens</th>
           <th>Est. cost</th>
           <th><span class="sr-only">Evidence</span></th>
@@ -134,9 +138,7 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
             <strong>{{ scenario(trial.scenario_id)?.title }}</strong
             ><span class="cell-detail"
               >{{
-                scenario(trial.scenario_id)?.variant === 'fault'
-                  ? 'Failure injected'
-                  : 'Clean control'
+                scenario(trial.scenario_id)?.variant === 'fault' ? 'With a problem' : 'No problem'
               }}
               · trial {{ trial.repetition }}</span
             >
@@ -155,10 +157,10 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
               trial.grade.violations.join(', ')
             }}</span>
           </td>
-          <td class="numeric" data-label="Calls / invalid">
+          <td class="numeric" data-label="Actions / rejected">
             {{ trial.tool_calls }} / {{ trial.invalid_actions }}
           </td>
-          <td class="numeric" data-label="Latency">
+          <td class="numeric" data-label="Time taken">
             {{ trial.source === 'live' ? `${(trial.latency_ms / 1000).toFixed(1)}s` : '—' }}
           </td>
           <td class="numeric" data-label="Tokens">
@@ -182,7 +184,7 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
     </table>
   </div>
   <p class="table-note">
-    Task achievement requires a completed run and a valid final state. An incomplete run is never
-    counted as a pass. Scripted timing and token metrics are intentionally omitted.
+    A completed booking requires a finished run and a booking that passes every rule. An unfinished
+    run is never counted as a pass. Scripted timing and token metrics are intentionally omitted.
   </p>
 </template>

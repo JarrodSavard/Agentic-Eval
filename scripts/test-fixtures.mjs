@@ -5,6 +5,6 @@ import { resolve } from 'node:path'
 const python = resolve(
   process.platform === 'win32' ? '.venv/Scripts/python.exe' : '.venv/bin/python',
 )
-execFileSync(python, ['-m', 'observatory.cli', 'demo', '--output', 'artifacts/test-data'], {
+execFileSync(python, ['-m', 'roadtest.cli', 'demo', '--output', 'artifacts/test-data'], {
   stdio: 'inherit',
 })

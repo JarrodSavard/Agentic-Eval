@@ -1,4 +1,4 @@
-# Observatory
+# Road Test
 
 ## Audience and job
 
@@ -6,7 +6,7 @@ Software engineering hiring teams inspect a working portfolio application and it
 
 ## Product truth
 
-A fictional observatory provides 24 deterministic scenarios: twelve tasks paired with clean/fault variants. Model trials are stochastic. Scripted demonstrations are not evidence of model performance. Genuine runs are small illustrative samples, never a model ranking.
+A fictional rental desk provides 24 deterministic scenarios: twelve tasks paired with clean/fault variants. Model trials are stochastic. Scripted demonstrations are not evidence of model performance. Genuine runs are small illustrative samples, never a model ranking.
 
 ## Platform and stack
 
@@ -18,4 +18,6 @@ Test-driven development. $0.50 default live budget, $1 maximum per invocation. O
 
 ## Design context
 
-Approved direction: restrained observatory instrument panel. The interface prioritizes readable comparisons, honest provenance, and keyboard-operable trace replay. This is an engineering portfolio, not a commercial observatory product.
+Approved direction: restrained rental booking board. The interface prioritizes readable comparisons, honest provenance, and keyboard-operable trace replay. This is an engineering portfolio, not a commercial car-rental product.
+
+The user chose rental cars on September 27, 2026 to make the prompts, data and UI understandable to an everyday audience. Show the customer request first, then the problem, the AI’s actions and the actual booking. Keep the entire product focused on car rentals.

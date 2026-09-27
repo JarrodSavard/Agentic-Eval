@@ -1,33 +1,26 @@
 {
-  "id": "instrument_unavailable-01-clean--gpt-6-luna--1",
-  "scenario_id": "instrument_unavailable-01-clean",
-  "agent": "OpenAI / GPT-6 Luna",
-  "provider": "openai",
-  "model": "gpt-6-luna",
-  "returned_model": "gpt-6-luna",
-  "source": "live",
+  "id": "transient_read-01-clean--scripted-recovery-v1--1",
+  "scenario_id": "transient_read-01-clean",
+  "agent": "Recovery reference",
+  "provider": "scripted",
+  "model": "scripted-recovery-v1",
+  "returned_model": null,
+  "source": "scripted",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-27T19:06:58.774229+00:00",
-  "latency_ms": 7138.079,
+  "started_at": "2026-09-26T00:00:00+00:00",
+  "latency_ms": 0.0,
   "tool_calls": 2,
   "invalid_actions": 0,
   "usage": {
-    "input_tokens": 1666,
-    "output_tokens": 95
+    "input_tokens": 0,
+    "output_tokens": 0
   },
-  "estimated_cost_usd": 0.0002141,
+  "estimated_cost_usd": 0.0,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
-    "id": "openai-luna",
-    "label": "OpenAI / GPT-6 Luna",
-    "provider": "openai",
-    "model": "gpt-6-luna",
-    "input_per_million": "0.10",
-    "output_per_million": "0.50",
-    "price_checked_at": "2026-09-26",
-    "reasoning": "none"
+    "policy": "scripted-recovery-v1"
   },
   "grade": {
     "success": true,
@@ -36,46 +29,46 @@
     "violations": []
   },
   "final_state": {
-    "instruments": [
+    "cars": [
       {
-        "id": "aurora",
-        "name": "Aurora / 01",
-        "bands": [
-          "visible",
-          "infrared"
+        "id": "blue-suv",
+        "name": "Blue SUV",
+        "features": [
+          "child_seat",
+          "large_boot"
         ],
         "available": true
       },
       {
-        "id": "meridian",
-        "name": "Meridian / 02",
-        "bands": [
-          "visible",
-          "infrared"
+        "id": "red-suv",
+        "name": "Red SUV",
+        "features": [
+          "child_seat",
+          "large_boot"
         ],
         "available": true
       },
       {
-        "id": "cinder",
-        "name": "Cinder / 03",
-        "bands": [
-          "visible"
+        "id": "city-car",
+        "name": "City hatchback",
+        "features": [
+          "child_seat"
         ],
         "available": true
       }
     ],
-    "reservations": [
+    "bookings": [
       {
         "id": "existing-1",
-        "request_id": "unrelated-program",
-        "instrument_id": "aurora",
-        "slot": 0
+        "request_id": "another-customer",
+        "car_id": "blue-suv",
+        "day": "2026-10-01"
       },
       {
         "id": "reservation-1",
-        "request_id": "observation-1",
-        "instrument_id": "aurora",
-        "slot": 2
+        "request_id": "trip-1",
+        "car_id": "blue-suv",
+        "day": "2026-10-03"
       }
     ]
   },
@@ -84,44 +77,44 @@
       "sequence": 0,
       "kind": "tool",
       "turn": 1,
-      "tool": "inspect_observatory",
+      "tool": "check_cars",
       "arguments": {},
       "result": {
         "data": {
-          "instruments": [
+          "cars": [
             {
-              "id": "aurora",
-              "name": "Aurora / 01",
-              "bands": [
-                "visible",
-                "infrared"
+              "id": "blue-suv",
+              "name": "Blue SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
               ],
               "available": true
             },
             {
-              "id": "meridian",
-              "name": "Meridian / 02",
-              "bands": [
-                "visible",
-                "infrared"
+              "id": "red-suv",
+              "name": "Red SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
               ],
               "available": true
             },
             {
-              "id": "cinder",
-              "name": "Cinder / 03",
-              "bands": [
-                "visible"
+              "id": "city-car",
+              "name": "City hatchback",
+              "features": [
+                "child_seat"
               ],
               "available": true
             }
           ],
-          "reservations": [
+          "bookings": [
             {
               "id": "existing-1",
-              "request_id": "unrelated-program",
-              "instrument_id": "aurora",
-              "slot": 0
+              "request_id": "another-customer",
+              "car_id": "blue-suv",
+              "day": "2026-10-01"
             }
           ]
         },
@@ -130,40 +123,40 @@
       },
       "text": null,
       "state": {
-        "instruments": [
+        "cars": [
           {
-            "id": "aurora",
-            "name": "Aurora / 01",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "meridian",
-            "name": "Meridian / 02",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "cinder",
-            "name": "Cinder / 03",
-            "bands": [
-              "visible"
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
             ],
             "available": true
           }
         ],
-        "reservations": [
+        "bookings": [
           {
             "id": "existing-1",
-            "request_id": "unrelated-program",
-            "instrument_id": "aurora",
-            "slot": 0
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
           }
         ]
       }
@@ -172,20 +165,20 @@
       "sequence": 1,
       "kind": "tool",
       "turn": 2,
-      "tool": "reserve_observation",
+      "tool": "book_car",
       "arguments": {
-        "request_id": "observation-1",
-        "instrument_id": "aurora",
-        "slot": 2,
-        "idempotency_key": "observation-1:aurora:2"
+        "request_id": "trip-1",
+        "car_id": "blue-suv",
+        "day": "2026-10-03",
+        "idempotency_key": "trip-1-blue-suv-2026-10-03"
       },
       "result": {
         "data": {
           "reservation": {
             "id": "reservation-1",
-            "request_id": "observation-1",
-            "instrument_id": "aurora",
-            "slot": 2
+            "request_id": "trip-1",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
           },
           "idempotent_replay": false
         },
@@ -194,46 +187,46 @@
       },
       "text": null,
       "state": {
-        "instruments": [
+        "cars": [
           {
-            "id": "aurora",
-            "name": "Aurora / 01",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "meridian",
-            "name": "Meridian / 02",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "cinder",
-            "name": "Cinder / 03",
-            "bands": [
-              "visible"
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
             ],
             "available": true
           }
         ],
-        "reservations": [
+        "bookings": [
           {
             "id": "existing-1",
-            "request_id": "unrelated-program",
-            "instrument_id": "aurora",
-            "slot": 0
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
           },
           {
             "id": "reservation-1",
-            "request_id": "observation-1",
-            "instrument_id": "aurora",
-            "slot": 2
+            "request_id": "trip-1",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
           }
         ]
       }
@@ -245,48 +238,48 @@
       "tool": null,
       "arguments": null,
       "result": null,
-      "text": "Scheduled **observation-1** on **Aurora / 01** in slot **2**. The unrelated reservation was preserved.",
+      "text": "Scheduling complete. Check the recorded environment for the outcome.",
       "state": {
-        "instruments": [
+        "cars": [
           {
-            "id": "aurora",
-            "name": "Aurora / 01",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "meridian",
-            "name": "Meridian / 02",
-            "bands": [
-              "visible",
-              "infrared"
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
             ],
             "available": true
           },
           {
-            "id": "cinder",
-            "name": "Cinder / 03",
-            "bands": [
-              "visible"
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
             ],
             "available": true
           }
         ],
-        "reservations": [
+        "bookings": [
           {
             "id": "existing-1",
-            "request_id": "unrelated-program",
-            "instrument_id": "aurora",
-            "slot": 0
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
           },
           {
             "id": "reservation-1",
-            "request_id": "observation-1",
-            "instrument_id": "aurora",
-            "slot": 2
+            "request_id": "trip-1",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
           }
         ]
       }

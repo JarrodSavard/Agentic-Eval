@@ -16,9 +16,11 @@ export function parseBundle(text: string): EvaluationBundle {
     !value ||
     typeof value !== 'object' ||
     !('schema_version' in value) ||
-    value.schema_version !== '1.0'
+    value.schema_version !== '2.0'
   ) {
-    throw new Error('Unsupported result version. Export a version 1.0 evaluation bundle.')
+    throw new Error(
+      'Unsupported result version. This rental-car demo accepts version 2.0. Export a new recording with the current runner.',
+    )
   }
   if (!validate(value))
     throw new Error(

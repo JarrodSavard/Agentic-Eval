@@ -3,13 +3,13 @@ from decimal import Decimal
 from threading import Event
 
 import pytest
-from observatory.agents import ScriptedAgent
-from observatory.artifacts import export_bundle, verify_bundle
-from observatory.budget import Pricing
-from observatory.contracts import EvaluationBundle, ExperimentConfig, Usage
-from observatory.protocol import AgentTurn, ToolCall
-from observatory.runner import make_bundle, run_trial
-from observatory.scenarios import catalog
+from roadtest.agents import ScriptedAgent
+from roadtest.artifacts import export_bundle, verify_bundle
+from roadtest.budget import Pricing
+from roadtest.contracts import EvaluationBundle, ExperimentConfig, Usage
+from roadtest.protocol import AgentTurn, ToolCall
+from roadtest.runner import make_bundle, run_trial
+from roadtest.scenarios import catalog
 
 
 @pytest.mark.parametrize("scenario", catalog(), ids=lambda s: s.id)
@@ -23,7 +23,7 @@ def test_reference_agent_passes_every_scenario(scenario):
 
 
 def test_faulty_agent_fails_equipment_change_and_exposes_invalid_attempt():
-    scenario = next(s for s in catalog() if s.id == "instrument_unavailable-01-fault")
+    scenario = next(s for s in catalog() if s.id == "car_unavailable-01-fault")
     result = run_trial(scenario, ScriptedAgent(scenario, reckless=True), ExperimentConfig())
     assert not result.grade.success
     assert result.invalid_actions == 1
@@ -35,7 +35,7 @@ def test_turn_limit_preserves_trace_and_separates_incomplete_from_success():
     result = run_trial(scenario, ScriptedAgent(scenario), ExperimentConfig(max_turns=1))
     assert result.status == "turn_limit"
     assert result.events[-1].kind == "stopped"
-    assert result.events[0].tool == "inspect_observatory"
+    assert result.events[0].tool == "check_cars"
 
 
 def test_tool_limit_is_applied_before_side_effects():
@@ -63,7 +63,7 @@ def test_regrade_rejects_fabricated_state_snapshots():
     scenario = catalog()[0]
     trial = run_trial(scenario, ScriptedAgent(scenario), ExperimentConfig())
     bundle = make_bundle([scenario], [trial], ExperimentConfig(), experiment_id="test")
-    bundle.trials[0].events[0].state.reservations.clear()
+    bundle.trials[0].events[0].state.bookings.clear()
     assert any("state mismatch" in error for error in verify_bundle(bundle))
 
 
@@ -114,8 +114,8 @@ def test_live_observer_sees_each_event_before_the_next_agent_turn():
     agent.next = next_turn
     trial = run_trial(scenario, agent, ExperimentConfig(), on_event=observed.append)
     assert observed == trial.events
-    observed[0].state.reservations.clear()
-    assert trial.events[0].state.reservations
+    observed[0].state.bookings.clear()
+    assert trial.events[0].state.bookings
 
 
 def test_cancel_stops_before_next_generation_and_preserves_partial_trace():
@@ -166,7 +166,7 @@ def test_stop_during_generation_accounts_response_without_executing_its_tools():
         def next(self, limit):
             cancel.set()
             return AgentTurn(
-                calls=[ToolCall("1", "inspect_observatory", {})],
+                calls=[ToolCall("1", "check_cars", {})],
                 usage=Usage(input_tokens=10, output_tokens=5),
             )
 

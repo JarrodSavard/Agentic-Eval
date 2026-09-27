@@ -68,7 +68,7 @@ export function useLive() {
         method: 'POST',
         body: request,
         retry: 0,
-        headers: { 'X-Observatory-Token': bootstrap.value.token },
+        headers: { 'X-Roadtest-Token': bootstrap.value.token },
       })
       schedule()
     } catch (cause) {
@@ -84,7 +84,7 @@ export function useLive() {
       snapshot.value = await $fetch<LiveSnapshot>(`/api/live/runs/${snapshot.value.run_id}/stop`, {
         method: 'POST',
         retry: 0,
-        headers: { 'X-Observatory-Token': bootstrap.value.token },
+        headers: { 'X-Roadtest-Token': bootstrap.value.token },
       })
       schedule()
     } catch (cause) {

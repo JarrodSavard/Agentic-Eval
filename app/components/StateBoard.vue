@@ -1,65 +1,71 @@
 <script setup lang="ts">
-import type { ObservatoryState, ObservationRequest } from '~/generated/evaluation'
-const props = defineProps<{ state: ObservatoryState; requests: ObservationRequest[] }>()
-const slots = computed(() =>
-  [...new Set([0, ...props.requests.flatMap((r) => r.allowed_slots)])].sort((a, b) => a - b),
+import { featureLabel, rentalDay } from '~/utils/rental'
+import type { RentalState, RentalRequest } from '~/generated/evaluation'
+const props = defineProps<{ state: RentalState; requests: RentalRequest[] }>()
+const days = computed(() =>
+  [
+    ...new Set([
+      ...props.state.bookings.map((b) => b.day),
+      ...props.requests.flatMap((r) => r.allowed_days),
+    ]),
+  ].sort(),
 )
-const booking = (instrument: string, slot: number) =>
-  props.state.reservations.find((b) => b.instrument_id === instrument && b.slot === slot)
+const booking = (car: string, day: string) =>
+  props.state.bookings.find((b) => b.car_id === car && b.day === day)
 const requested = (id: string) => props.requests.some((r) => r.id === id)
+const cellLabel = (car: string, day: string, available: boolean) => {
+  const current = booking(car, day)
+  return current
+    ? props.requests.find((r) => r.id === current.request_id)?.customer || 'Booked'
+    : available
+      ? 'Free'
+      : 'Unavailable'
+}
 </script>
 
 <template>
   <div class="state-board">
     <div class="board-heading">
-      <span>Observation board</span><span class="muted">Discrete time slots</span>
+      <span>Car bookings</span><span class="muted">One-day rentals</span>
     </div>
     <div class="board-scroll">
       <table class="schedule-table">
         <caption class="sr-only">
-          Instrument availability and reservations at this step
+          Car availability and bookings at this step
         </caption>
         <thead>
           <tr>
-            <th scope="col">Instrument</th>
-            <th v-for="slot in slots" :key="slot" scope="col">
-              {{ String(slot).padStart(2, '0') }}
+            <th scope="col">Car</th>
+            <th v-for="day in days" :key="day" scope="col">
+              {{ rentalDay(day) }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="instrument in state.instruments" :key="instrument.id">
+          <tr v-for="car in state.cars" :key="car.id">
             <th scope="row">
-              <span class="instrument-name"
-                >{{ instrument.name.split(' / ')[0]
+              <span class="car-name"
+                >{{ car.name.split(' / ')[0]
                 }}<span
-                  :class="['availability', { unavailable: !instrument.available }]"
-                  :aria-label="instrument.available ? 'Available' : 'Unavailable'"
+                  :class="['availability', { unavailable: !car.available }]"
+                  :aria-label="car.available ? 'Available' : 'Unavailable'"
                 ></span></span
-              ><span class="instrument-band">{{
-                instrument.available ? instrument.bands.join(' / ') : 'Unavailable'
+              ><span class="car-features">{{
+                car.available ? car.features.map(featureLabel).join(' · ') : 'Unavailable'
               }}</span>
             </th>
-            <td v-for="slot in slots" :key="slot">
+            <td v-for="day in days" :key="day">
               <span
                 :class="[
-                  'slot',
+                  'day',
                   {
-                    'slot-booked': booking(instrument.id, slot),
-                    'slot-new':
-                      booking(instrument.id, slot) &&
-                      requested(booking(instrument.id, slot)!.request_id),
-                    'slot-unavailable': !instrument.available && !booking(instrument.id, slot),
+                    'day-booked': booking(car.id, day),
+                    'day-new': booking(car.id, day) && requested(booking(car.id, day)!.request_id),
+                    'day-unavailable': !car.available && !booking(car.id, day),
                   },
                 ]"
-                :title="
-                  booking(instrument.id, slot)?.request_id ||
-                  (instrument.available ? 'Open slot' : 'Unavailable')
-                "
-                ><span class="sr-only">{{
-                  booking(instrument.id, slot)?.request_id ||
-                  (instrument.available ? 'Open' : 'Unavailable')
-                }}</span></span
+                :title="cellLabel(car.id, day, car.available)"
+                >{{ cellLabel(car.id, day, car.available) }}</span
               >
             </td>
           </tr>
@@ -67,8 +73,8 @@ const requested = (id: string) => props.requests.some((r) => r.id === id)
       </table>
     </div>
     <div class="board-legend">
-      <span><i class="legend-existing"></i>Existing booking</span
-      ><span><i class="legend-new"></i>Requested observation</span>
+      <span><i class="legend-existing"></i>Someone else's booking</span
+      ><span><i class="legend-new"></i>Booked for this trip</span>
     </div>
   </div>
 </template>

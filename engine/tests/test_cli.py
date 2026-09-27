@@ -1,7 +1,7 @@
 import json
 
-from observatory.cli import main
-from observatory.contracts import EvaluationBundle
+from roadtest.cli import main
+from roadtest.contracts import EvaluationBundle
 
 
 def test_offline_cli_exports_all_reference_and_optimistic_trials(tmp_path):

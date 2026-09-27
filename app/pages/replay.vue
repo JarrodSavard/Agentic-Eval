@@ -54,8 +54,10 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
 <template>
   <section class="page-heading">
     <div>
-      <h1>Every action<br />leaves evidence.</h1>
-      <p class="lead">Step through what the agent saw, attempted, and changed.</p>
+      <h1>Watch the booking<br />step by step.</h1>
+      <p class="lead">
+        See what the AI checked, what it tried to book, and what actually happened.
+      </p>
     </div>
     <NuxtLink class="text-link" to="/compare">Back to comparison <ArrowIcon /></NuxtLink>
   </section>
@@ -69,7 +71,9 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
         :key="trial.id"
         :value="trial.id"
       >
-        {{ trial.scenario_id }} · {{ trial.agent }} · trial {{ trial.repetition }}
+        {{ evaluation.data.value?.scenarios.find((s) => s.id === trial.scenario_id)?.title }} ·
+        {{ trial.agent }} ·
+        {{ trial.scenario_id.endsWith('-fault') ? 'With a problem' : 'No problem' }}
       </option>
     </select></label
   >
@@ -93,8 +97,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
     <div class="replay-layout">
       <section class="trace-panel">
         <div class="panel-heading">
-          <h2>Recorded actions</h2>
-          <span>{{ recording.tool_calls }} tool calls</span>
+          <h2>What the AI did</h2>
+          <span>{{ recording.tool_calls }} actions</span>
         </div>
         <ReplayControls v-model="position" :count="recording.events.length" />
         <ol class="event-list">
@@ -110,15 +114,15 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
                 ><small>{{
                   entry.result?.error?.replaceAll('_', ' ') ||
                   (entry.result?.fault
-                    ? 'Conditions changed after inspection'
+                    ? 'Car became unavailable'
                     : entry.kind === 'tool'
-                      ? 'Tool returned successfully'
+                      ? 'Request completed'
                       : entry.kind)
                 }}</small></span
               ><span
                 v-if="entry.result?.fault"
                 class="fault-dot"
-                aria-label="Fault injected"
+                aria-label="Problem introduced"
               ></span>
             </button>
           </li>
@@ -135,8 +139,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
             <span v-if="event">Turn {{ event.turn }}</span>
           </div>
           <p v-if="event?.result?.fault" class="fault-notice">
-            Fault: {{ event.result.fault.replaceAll('_', ' ') }}. This label is evaluator metadata
-            and was not shown to the model.
+            We introduced this problem: {{ event.result.fault.replaceAll('_', ' ') }}. The AI only
+            sees the booking site’s replies, not this explanation.
           </p>
           <EventStory v-if="event" :event="event" />
           <details v-if="event?.kind === 'tool'" class="technical-details">
@@ -167,8 +171,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
         <dd>{{ evaluation.data.value?.code_revision }}</dd>
         <dt>Grading</dt>
         <dd>
-          {{ recording.grade.completed_requests }} /
-          {{ recording.grade.total_requests }} observations fulfilled.
+          {{ recording.grade.completed_requests }} / {{ recording.grade.total_requests }} trips
+          booked.
           {{
             recording.grade.violations.length
               ? recording.grade.violations.join(', ')

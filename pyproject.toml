@@ -1,5 +1,5 @@
 [project]
-name = "observatory-eval"
+name = "roadtest-eval"
 version = "0.1.0"
 description = "A tiny, reproducible agent reliability testbed"
 authors = [{name = "Jarrod Savard"}]
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-observatory = "observatory.cli:main"
+roadtest = "roadtest.cli:main"
 
 [dependency-groups]
 dev = [
@@ -33,7 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["engine/observatory"]
+packages = ["engine/roadtest"]
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]
@@ -49,5 +49,5 @@ select = ["E4", "E7", "E9", "F", "I", "UP"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-packages = ["observatory"]
+packages = ["roadtest"]
 mypy_path = "engine"

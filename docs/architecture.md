@@ -56,3 +56,7 @@ The model result is not deterministic. Only the environment, scripted baselines,
 - State snapshots cost some file space but avoid duplicating the simulation engine in TypeScript.
 - Three explicit tools and small protocols provide extension points without a large agent framework.
 - Static public hosting removes production service maintenance. The optional live API exists only on the owner's computer.
+
+## Rental domain v2
+
+Public contracts use Car, RentalRequest, Booking and RentalState; tools are check_cars, book_car and cancel_booking. Artifact, scenario and prompt versions are 2.0. The CLI and Python package are named roadtest.

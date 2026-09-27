@@ -10,7 +10,7 @@ for (const [label, viewport] of [
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 })
   for (const route of ['home', 'replay', 'compare']) {
     await page.goto(`http://127.0.0.1:4173/Agentic-Eval/${route === 'home' ? '' : route}`)
-    if (route === 'home') await page.getByText('4 tool calls · full trace available').waitFor()
+    if (route === 'home') await page.locator('.schedule-table').waitFor()
     else if (route === 'replay') await page.getByLabel('Next event').waitFor()
     else await page.getByRole('table').waitFor()
     await page.evaluate(() => document.fonts.ready)

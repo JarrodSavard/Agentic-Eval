@@ -30,7 +30,7 @@ describe('honest comparison summaries', () => {
       live: 0,
       cost: 0,
     })
-    expect(provenanceLabel(reference[0]!)).toBe('Scripted demonstration')
+    expect(provenanceLabel(reference[0]!)).toBe('Scripted example')
   })
   it('does not count an incomplete trial as a passed trial even when final state is valid', () => {
     const trial = fixture().trials[0]!
@@ -51,7 +51,7 @@ describe('honest comparison summaries', () => {
 
 describe('local result imports', () => {
   it('accepts the Python-exported contract', () => {
-    expect(fixture().schema_version).toBe('1.0')
+    expect(fixture().schema_version).toBe('2.0')
   })
   it('rejects invalid JSON, unsupported versions and broken references clearly', () => {
     expect(() => parseBundle('{')).toThrow('valid JSON')
@@ -70,4 +70,8 @@ it('features a real fault trial regardless of outcome', () => {
   const clean = { ...trials[0]!, source: 'live' as const, scenario_id: 'example-clean' }
   const fault = { ...clean, scenario_id: 'example-fault', status: 'provider_error' as const }
   expect(featuredTrial([clean, ...trials, fault])).toBe(fault)
+})
+
+it('rejects results from a different contract version', () => {
+  expect(() => parseBundle('{"schema_version":"1.0"}')).toThrow('version 2.0')
 })

@@ -1,5 +1,67 @@
 {
   "$defs": {
+    "Booking": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "car_id": {
+          "title": "Car Id",
+          "type": "string"
+        },
+        "day": {
+          "title": "Day",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "request_id",
+        "car_id",
+        "day"
+      ],
+      "title": "Booking",
+      "type": "object"
+    },
+    "Car": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Features",
+          "type": "array"
+        },
+        "available": {
+          "default": true,
+          "title": "Available",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "features",
+        "available"
+      ],
+      "title": "Car",
+      "type": "object"
+    },
     "ExperimentConfig": {
       "additionalProperties": false,
       "properties": {
@@ -89,123 +151,66 @@
       "title": "Grade",
       "type": "object"
     },
-    "Instrument": {
+    "RentalRequest": {
       "additionalProperties": false,
       "properties": {
         "id": {
           "title": "Id",
           "type": "string"
         },
-        "name": {
-          "title": "Name",
+        "customer": {
+          "title": "Customer",
           "type": "string"
         },
-        "bands": {
+        "trip": {
+          "title": "Trip",
+          "type": "string"
+        },
+        "required_feature": {
+          "title": "Required Feature",
+          "type": "string"
+        },
+        "allowed_days": {
           "items": {
             "type": "string"
           },
-          "title": "Bands",
-          "type": "array"
-        },
-        "available": {
-          "default": true,
-          "title": "Available",
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "bands",
-        "available"
-      ],
-      "title": "Instrument",
-      "type": "object"
-    },
-    "ObservationRequest": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string"
-        },
-        "target": {
-          "title": "Target",
-          "type": "string"
-        },
-        "band": {
-          "title": "Band",
-          "type": "string"
-        },
-        "allowed_slots": {
-          "items": {
-            "type": "integer"
-          },
-          "title": "Allowed Slots",
+          "title": "Allowed Days",
           "type": "array"
         }
       },
       "required": [
         "id",
-        "target",
-        "band",
-        "allowed_slots"
+        "customer",
+        "trip",
+        "required_feature",
+        "allowed_days"
       ],
-      "title": "ObservationRequest",
+      "title": "RentalRequest",
       "type": "object"
     },
-    "ObservatoryState": {
+    "RentalState": {
       "additionalProperties": false,
       "properties": {
-        "instruments": {
+        "cars": {
           "items": {
-            "$ref": "#/$defs/Instrument"
+            "$ref": "#/$defs/Car"
           },
-          "title": "Instruments",
+          "title": "Cars",
           "type": "array"
         },
-        "reservations": {
+        "bookings": {
           "items": {
-            "$ref": "#/$defs/Reservation"
+            "$ref": "#/$defs/Booking"
           },
-          "title": "Reservations",
+          "title": "Bookings",
           "type": "array"
         }
       },
       "required": [
-        "instruments",
-        "reservations"
+        "cars",
+        "bookings"
       ],
-      "title": "ObservatoryState",
-      "type": "object"
-    },
-    "Reservation": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string"
-        },
-        "request_id": {
-          "title": "Request Id",
-          "type": "string"
-        },
-        "instrument_id": {
-          "title": "Instrument Id",
-          "type": "string"
-        },
-        "slot": {
-          "title": "Slot",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "id",
-        "request_id",
-        "instrument_id",
-        "slot"
-      ],
-      "title": "Reservation",
+      "title": "RentalState",
       "type": "object"
     },
     "Scenario": {
@@ -220,8 +225,8 @@
           "type": "string"
         },
         "version": {
-          "const": "1.0",
-          "default": "1.0",
+          "const": "2.0",
+          "default": "2.0",
           "title": "Version",
           "type": "string"
         },
@@ -236,7 +241,7 @@
         "family": {
           "enum": [
             "transient_read",
-            "instrument_unavailable",
+            "car_unavailable",
             "committed_timeout"
           ],
           "title": "Family",
@@ -252,13 +257,13 @@
         },
         "requests": {
           "items": {
-            "$ref": "#/$defs/ObservationRequest"
+            "$ref": "#/$defs/RentalRequest"
           },
           "title": "Requests",
           "type": "array"
         },
         "initial_state": {
-          "$ref": "#/$defs/ObservatoryState"
+          "$ref": "#/$defs/RentalState"
         }
       },
       "required": [
@@ -300,7 +305,7 @@
             {
               "enum": [
                 "transient_read",
-                "instrument_unavailable",
+                "car_unavailable",
                 "committed_timeout"
               ],
               "type": "string"
@@ -390,7 +395,7 @@
           "title": "Text"
         },
         "state": {
-          "$ref": "#/$defs/ObservatoryState"
+          "$ref": "#/$defs/RentalState"
         }
       },
       "required": [
@@ -516,7 +521,7 @@
           "$ref": "#/$defs/Grade"
         },
         "final_state": {
-          "$ref": "#/$defs/ObservatoryState"
+          "$ref": "#/$defs/RentalState"
         },
         "events": {
           "items": {
@@ -579,8 +584,8 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "1.0",
-      "default": "1.0",
+      "const": "2.0",
+      "default": "2.0",
       "title": "Schema Version",
       "type": "string"
     },
@@ -597,8 +602,8 @@
       "type": "string"
     },
     "prompt_version": {
-      "const": "1.0",
-      "default": "1.0",
+      "const": "2.0",
+      "default": "2.0",
       "title": "Prompt Version",
       "type": "string"
     },

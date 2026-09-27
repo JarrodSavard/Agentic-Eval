@@ -384,14 +384,14 @@ strong {
 }
 .schedule-table td {
   text-align: center;
-  min-width: 36px;
+  min-width: 72px;
 }
-.instrument-name {
+.car-name {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.instrument-band {
+.car-features {
   display: block;
   font-size: 0.64rem;
   font-weight: 400;
@@ -405,24 +405,27 @@ strong {
 .fault-dot {
   background: #a57435;
 }
-.slot {
+.day {
   display: inline-block;
-  width: 24px;
-  height: 29px;
+  min-width: 60px;
+  padding: 8px 5px;
+  font-size: 0.64rem;
+  line-height: 1.4;
   background: #eaf0ea;
   border: 1px solid #d6e0d6;
   border-radius: 3px;
   vertical-align: middle;
 }
-.slot-booked {
+.day-booked {
   background: #98a7a2;
   border-color: #84958e;
 }
-.slot-new {
+.day-new {
+  color: var(--surface);
   background: #44715b;
   border-color: #38664f;
 }
-.slot-unavailable {
+.day-unavailable {
   background: #f2eadd;
   border-color: #e5d6bd;
 }
@@ -844,7 +847,7 @@ select {
 .state-panel .schedule-table {
   max-width: 680px;
 }
-.state-panel .slot {
+.state-panel .day {
   width: 35px;
 }
 .event-inspector {
@@ -1191,7 +1194,7 @@ pre {
   .state-panel > .state-board {
     padding: 20px 16px 0;
   }
-  .state-panel .slot {
+  .state-panel .day {
     width: 25px;
   }
   .event-inspector {

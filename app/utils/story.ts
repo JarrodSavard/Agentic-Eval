@@ -1,89 +1,88 @@
 import type { TraceEvent } from '~/generated/evaluation'
+import { rentalDay } from './rental'
 
 export function explainEvent(event: TraceEvent) {
   const result = event.result
-  const instrument =
-    event.state.instruments
-      .find((i) => i.id === event.arguments?.instrument_id)
-      ?.name.split(' / ')[0] || 'the instrument'
-  const slot = event.arguments?.slot
+  const car =
+    event.state.cars.find((c) => c.id === event.arguments?.car_id)?.name || 'the requested car'
+  const day = rentalDay(event.arguments?.day)
   if (event.kind === 'stopped')
     return {
-      title: 'Run stopped',
+      title: 'The run stopped early',
       detail:
-        'The run ended before a normal completion. Inspect the recorded status; this is not counted as a successful run.',
+        'The AI did not finish its attempt. This is shown separately from a completed booking, even if it made some progress.',
     }
   if (event.kind === 'message')
     return {
-      title: 'Model reported back',
+      title: 'The AI reports back',
       detail:
-        'This is the model�s own account. The independent grader checks the reservations to decide whether the task succeeded.',
+        'This is what the AI says it did. The independent checker (grader) looks at the actual bookings to decide whether it really finished the job.',
     }
   if (result?.fault === 'committed_timeout')
     return {
-      title: 'Booking saved, confirmation lost',
+      title: 'Booked, but no confirmation',
       detail:
-        'The reservation was saved, but the model received a timeout instead of confirmation. It must check the schedule or retry safely to avoid a duplicate.',
+        'The booking was saved, but the confirmation did not reach the AI. It needs to check the bookings or repeat the same request safely, without booking twice.',
     }
-  if (event.tool === 'inspect_observatory') {
+  if (event.tool === 'check_cars') {
     if (result?.fault === 'transient_read')
       return {
-        title: 'Schedule check failed',
+        title: 'The booking site did not respond',
         detail:
-          'A temporary read failure prevented the model from seeing the schedule. No booking changed.',
+          'The AI tried to see which cars were available, but the site returned a temporary error. No booking changed.',
       }
     if (result?.error)
       return {
-        title: 'Schedule check rejected',
+        title: 'The car check was rejected',
         detail:
-          'The model did not receive the schedule. Expand the technical details to see why the request was rejected.',
+          'The AI did not receive the car list. Open Technical details to see why the request was rejected.',
       }
-    if (result?.fault === 'instrument_unavailable')
+    if (result?.fault === 'car_unavailable')
       return {
-        title: 'Checked the schedule',
+        title: 'The AI checks available cars',
         detail:
-          'An instrument went offline after the schedule was returned. The board shows the changed world, but the model has not seen that change yet.',
+          'The Blue SUV became unavailable after the car list was sent. The board shows the current situation, but the model has not seen this change yet. Its list still says the car is available.',
       }
     return {
-      title: 'Checked the schedule',
+      title: 'The AI checks available cars',
       detail:
-        'The model received the current instruments, availability and existing bookings. This action only reads the schedule.',
+        'The AI can now see each car, its features, whether it is available, and existing bookings. Nothing has been booked by this action.',
     }
   }
-  if (event.tool === 'reserve_observation') {
-    if (result?.error === 'instrument_unavailable')
+  if (event.tool === 'book_car') {
+    if (result?.error === 'car_unavailable')
       return {
-        title: 'Booking rejected',
-        detail: `${instrument} is unavailable. The attempted booking in slot ${slot} was rejected; it did not change the schedule. The model now has evidence that its earlier information is out of date.`,
+        title: 'That car is no longer available',
+        detail: `The AI tried to book the ${car} for ${day}, but it is no longer available. No booking was made. The AI now knows it needs another option.`,
       }
     if (result?.error)
       return {
-        title: 'Booking rejected',
-        detail: `The request did not satisfy the rules (${result.error.replaceAll('_', ' ')}). No reservation was added.`,
+        title: 'The booking was rejected',
+        detail: `No booking was added because a rule was not met: ${result.error.replaceAll('_', ' ')}. The AI can use this feedback to try another option.`,
       }
     if (result?.data?.idempotent_replay)
       return {
-        title: 'Existing booking confirmed',
+        title: 'The original booking is confirmed',
         detail:
-          'A safe retry returned the original reservation. It did not create another booking.',
+          'The AI repeated the same booking request safely. The site returned the booking that already existed, without creating a second one.',
       }
     return {
-      title: 'Observation booked',
-      detail: `The model reserved ${instrument} in slot ${slot}. The green square shows the booking now present in the schedule.`,
+      title: 'The car is booked',
+      detail: `The ${car} is booked for ${day}. The green entry on the board shows the booking that actually exists.`,
     }
   }
-  if (event.tool === 'cancel_reservation')
+  if (event.tool === 'cancel_booking')
     return result?.error
       ? {
-          title: 'Cancellation rejected',
-          detail: 'The reservation was not removed. Expand the technical details to see why.',
+          title: 'The cancellation was rejected',
+          detail: 'The booking was not removed. Open Technical details to see why.',
         }
       : {
-          title: 'Reservation cancelled',
-          detail: 'The requested reservation was removed from the schedule.',
+          title: 'The booking was cancelled',
+          detail: 'The selected booking was removed. Other bookings stayed in place.',
         }
   return {
-    title: 'Tool action recorded',
-    detail: 'Inspect the recorded request and response for this action.',
+    title: 'The AI made a request',
+    detail: 'Open Technical details to inspect the request and response.',
   }
 }

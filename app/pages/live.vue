@@ -5,7 +5,7 @@ const live = useLive()
 const evaluation = useEvaluation()
 const router = useRouter()
 const selectedProfiles = ref<string[]>([])
-const baseId = ref('instrument_unavailable-01')
+const baseId = ref('car_unavailable-01')
 const budget = ref(0.5)
 const position = ref(0)
 const follow = ref(true)
@@ -75,8 +75,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
 <template>
   <section class="page-heading">
     <div>
-      <h1>Watch a model work.</h1>
-      <p class="lead">Fictional observations. Real model decisions. Visible consequences.</p>
+      <h1>Let an AI book a car.</h1>
+      <p class="lead">Choose an AI, give it a trip, and watch how it handles a booking problem.</p>
     </div>
     <NuxtLink class="text-link" to="/replay">Watch a recording <ArrowIcon /></NuxtLink>
   </section>
@@ -106,13 +106,13 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
   </section>
   <template v-else>
     <div class="notice">
-      <span class="status-dot"></span>Local live execution · Each model attempts a clean control and
-      the same task with an injected failure.
+      <span class="status-dot"></span>Runs on your computer · Each AI tries the trip once normally
+      and once with a booking problem.
     </div>
     <TaskBrief v-if="briefScenario" :scenario="briefScenario" />
     <p class="table-note">
-      Select both Luna versions to compare them: each gets the same assignment, tools and limits.
-      Two models create four trials: two normal runs and two with a deliberate failure.
+      Select both Luna versions to compare them: each gets the same customer request and limits. Two
+      models create four trials: two normal runs and two with a deliberate failure.
     </p>
     <form class="live-form" @submit.prevent="start">
       <fieldset :disabled="running || live.submitting.value">
@@ -184,7 +184,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
           }}</strong>
           <p>
             {{ run.active_agent }} ·
-            {{ scenario?.variant === 'fault' ? 'Failure condition' : 'Clean control' }} ·
+            {{ scenario?.variant === 'fault' ? 'With a problem' : 'No problem' }} ·
             {{ run.bundle.trials.length }} trials recorded
           </p>
         </div>
@@ -210,7 +210,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
       <div v-if="scenario && state" class="replay-layout live-observation">
         <section class="trace-panel">
           <div class="panel-heading">
-            <h2>Actions arriving</h2>
+            <h2>What the AI is doing</h2>
             <span>{{ run.events.length }} events</span>
           </div>
           <div class="live-follow">
@@ -247,7 +247,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
                   ><strong>{{ explainEvent(entry).title }}</strong
                   ><small>{{
                     entry.result?.fault
-                      ? 'Fault injected'
+                      ? 'Problem introduced'
                       : entry.result?.error?.replaceAll('_', ' ') || entry.kind
                   }}</small></span
                 >
@@ -263,8 +263,8 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
               <span v-if="event">Turn {{ event.turn }}</span>
             </div>
             <p v-if="event?.result?.fault" class="fault-notice">
-              Injected failure: {{ event.result.fault.replaceAll('_', ' ') }}. The model must
-              respond using the tools it has.
+              Booking problem: {{ event.result.fault.replaceAll('_', ' ') }}. The AI has to work out
+              what to do from the replies it receives.
             </p>
             <EventStory v-if="event" :event="event" />
             <details v-if="event?.kind === 'tool'" class="technical-details">
@@ -283,18 +283,16 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
         </section>
       </div>
       <section v-if="run.bundle.trials.length" class="live-outcomes">
-        <h2>Did the task actually succeed?</h2>
+        <h2>Did the customer get a car?</h2>
         <p class="table-note">
-          The grader checks reservations and constraints independently of the model's final answer.
-          One pair illustrates behavior; it does not establish a ranking.
+          A separate checker looks at the actual bookings. A confident answer is not enough: the
+          customer must have the right car on an allowed date, without duplicates.
         </p>
         <ul>
           <li v-for="trial in run.bundle.trials" :key="trial.id">
             <span
               >{{ trial.agent }} ·
-              {{
-                trial.scenario_id.endsWith('-fault') ? 'Failure condition' : 'Clean control'
-              }}</span
+              {{ trial.scenario_id.endsWith('-fault') ? 'With a problem' : 'No problem' }}</span
             ><strong
               :class="[
                 'outcome',
@@ -302,7 +300,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
               ]"
               >{{ outcome(trial) }}</strong
             ><span
-              >{{ trial.tool_calls }} calls · {{ trial.invalid_actions }} invalid attempts ·
+              >{{ trial.tool_calls }} actions · {{ trial.invalid_actions }} rejected actions ·
               {{ money(trial.estimated_cost_usd) }}</span
             >
           </li>

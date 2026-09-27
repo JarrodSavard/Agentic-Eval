@@ -1,8 +1,8 @@
 # Agentic-Eval
 
-**Observatory · Agent Reliability Lab**
+**Road Test · AI booking challenge**
 
-A small agent evaluation application built by Jarrod Savard. Claude and OpenAI models use the same tools to schedule observations in a fictional observatory. The experiment checks whether they achieve the task when tools fail, equipment goes offline, or a successful write returns a timeout.
+Can an AI book the right rental car when something goes wrong? This portfolio project by Jarrod Savard gives models the same customer request, then makes the booking site fail, takes a car out of service, or loses a booking confirmation. You can watch every action and check whether the customer actually got a suitable car.
 
 [Explore the application](https://jarrodsavard.github.io/Agentic-Eval/) · [Methodology](docs/methodology.md) · [Architecture](docs/architecture.md) · [Add a model or provider](docs/extending.md)
 
@@ -15,9 +15,9 @@ A small agent evaluation application built by Jarrod Savard. Claude and OpenAI m
 - **Python runner:** official SDK adapters, a shared bounded agent loop, typed artifacts, and a conservative spending guard.
 - **Offline testing:** pytest, Hypothesis, mocked HTTP integration tests, generated-contract checks, Vitest, and Playwright on desktop and mobile.
 
-**The published evidence contains two genuine OpenAI GPT-6 Luna trials**, recorded on September 27, 2026: one clean control and one instrument-unavailable variant. Both achieved the task. In the failure variant, Luna received a rejected reservation, inspected availability again, and booked the alternative instrument. Both attempts are included; estimated total cost was $0.0006231. Coverage is 2 of 24 scenarios, with no Claude results yet. This is an illustration, not a model ranking.
+The rental-car demo uses **artifact, scenario and prompt version 2.0**.
 
-The offline scripted reference still covers all 24 scenarios and the deliberately faulty baseline demonstrates grader failures. Generate those separately with the demo command below.
+The reference scripted agent passes all 24 rental scenarios; the deliberately faulty baseline demonstrates failed outcomes. Scripted examples are clearly labeled and make no claims about real model performance. Genuine rental recordings, when published, contain every attempt from the experiment, not just successful ones. Tiny samples illustrate behavior; they do not establish a ranking.
 
 ## Run locally
 
@@ -48,15 +48,15 @@ Results are saved under `artifacts/local/`. Download a finished recording or ope
 To publish every attempt from one completed experiment:
 
 ```sh
-uv run observatory verify artifacts/local/live-<run-id>.json
-uv run observatory publish artifacts/local/live-<run-id>.json
+uv run roadtest verify artifacts/local/live-<run-id>.json
+uv run roadtest publish artifacts/local/live-<run-id>.json
 ```
 
 Commit the generated `public/data` files and push `main` to publish them through Pages. This replaces the current public dataset with that complete experiment. The local build uses `.local-output/`, separate from the Pages build in `.output/`.
 
 ```sh
-uv run observatory run
-uv run observatory verify artifacts/evaluation.json
+uv run roadtest run
+uv run roadtest verify artifacts/evaluation.json
 ```
 
 Use **Open result file** on the comparison page to inspect `artifacts/evaluation.json`. Files stay in browser memory. The importer validates format, version, references, and event order; it does not prove a file's claimed provenance. The Python verifier re-executes tool transitions and checks grades.
@@ -66,8 +66,8 @@ Use **Open result file** on the comparison page to inspect `artifacts/evaluation
 Copy `.env.example` to `.env` and add `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`. Never commit that file. Confirm the model IDs and prices in `config/models.json`; live runs refuse price tables older than 30 days.
 
 ```sh
-uv run observatory run --live --budget 0.50 --output artifacts/live-showcase.json
-uv run observatory verify artifacts/live-showcase.json
+uv run roadtest run --live --budget 0.50 --output artifacts/live-showcase.json
+uv run roadtest verify artifacts/live-showcase.json
 ```
 
 This attempts the predetermined `committed_timeout-01` task in clean and failure conditions, once with each configured provider: four attempts. The invocation's default budget is **$0.50** and its maximum allowed budget is **$1**. There are no automatic paid retries. Re-running the command is a new invocation and can spend additional money.
@@ -79,11 +79,11 @@ The default models are `gpt-6-luna` and `claude-haiku-4-5-20251001`, with extra 
 To prepare the entire live experiment for the static viewer, including failed attempts:
 
 ```sh
-uv run observatory publish artifacts/live-showcase.json
+uv run roadtest publish artifacts/live-showcase.json
 pnpm generate
 ```
 
-Publishing replaces the viewer's current dataset; it does not merge or cherry-pick individual trials. `uv run observatory demo` restores the deterministic scripted demonstration. Review generated public artifacts before committing; they contain model-visible prompts/actions/results, not API keys or provider reasoning internals.
+Publishing replaces the viewer's current dataset; it does not merge or cherry-pick individual trials. `uv run roadtest demo` restores the deterministic scripted demonstration. Review generated public artifacts before committing; they contain model-visible prompts/actions/results, not API keys or provider reasoning internals.
 
 ## Verify
 
@@ -122,7 +122,7 @@ The budget check counts **all** compressed client JavaScript chunks against 250 
 When changing the public Python contracts:
 
 ```sh
-uv run observatory schema
+uv run roadtest schema
 pnpm contracts
 ```
 
@@ -140,7 +140,7 @@ This repository is publicly available for portfolio review. It is not released u
 
 ### Compare Luna generations
 
-In the local **Live** page, select **OpenAI / GPT-6 Luna** and **OpenAI / GPT-5.6 Luna**, choose one task, and start the experiment. Each model attempts the clean and failure conditions, producing four trials under one shared budget. Use **Open results in comparison** when finished. The existing public recordings remain the original GPT-6 Luna pair until you publish a new experiment.
+In the local **Live** page, select **OpenAI / GPT-6 Luna** and **OpenAI / GPT-5.6 Luna**, choose one task, and start the experiment. Each model attempts the clean and failure conditions, producing four trials under one shared budget. Use **Open results in comparison** when finished. A two-model experiment contains four attempts: each model tries the same trip with and without a problem.
 
 The assignment and step explanations describe observed actions and environment changes. Expand **Technical details** for the exact tool request and response. They do not claim to expose private model reasoning.
 

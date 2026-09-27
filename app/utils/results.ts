@@ -4,9 +4,9 @@ export type TrialSummary = Omit<TrialResult, 'events' | 'final_state'> & { trace
 export type SummaryIndex = Omit<EvaluationBundle, 'trials'> & { trials: TrialSummary[] }
 
 export const familyLabels: Record<string, string> = {
-  transient_read: 'Lost signal',
-  instrument_unavailable: 'Change of plans',
-  committed_timeout: 'An uncertain success',
+  transient_read: 'The booking site is down',
+  car_unavailable: 'The car is no longer available',
+  committed_timeout: 'The confirmation never arrives',
 }
 
 export function summarize(trials: TrialSummary[]) {
@@ -43,7 +43,7 @@ export function filterTrials(
 }
 
 export function provenanceLabel(trial: Pick<TrialSummary, 'source'>) {
-  return trial.source === 'live' ? 'Recorded model run' : 'Scripted demonstration'
+  return trial.source === 'live' ? 'Real AI recording' : 'Scripted example'
 }
 
 export function returnedModelLabel(trial: Pick<TrialSummary, 'source' | 'returned_model'>) {
@@ -57,7 +57,7 @@ export function returnedModelLabel(trial: Pick<TrialSummary, 'source' | 'returne
 
 export function outcome(trial: TrialSummary) {
   if (trial.status !== 'completed') return trial.status.replaceAll('_', ' ')
-  return trial.grade.success ? 'Task achieved' : 'Task not achieved'
+  return trial.grade.success ? 'Booking completed' : 'Booking not completed'
 }
 
 export function money(value: number) {
@@ -68,8 +68,7 @@ export function featuredTrial(trials: TrialSummary[]) {
   return (
     trials.find((t) => t.source === 'live' && t.scenario_id.endsWith('-fault')) ||
     trials.find(
-      (t) =>
-        t.scenario_id === 'instrument_unavailable-01-fault' && t.model === 'scripted-recovery-v1',
+      (t) => t.scenario_id === 'car_unavailable-01-fault' && t.model === 'scripted-recovery-v1',
     ) ||
     trials[0]
   )

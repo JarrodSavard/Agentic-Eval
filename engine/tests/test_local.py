@@ -5,12 +5,12 @@ from threading import Event
 
 import pytest
 from fastapi.testclient import TestClient
-from observatory.agents import ScriptedAgent
-from observatory.artifacts import verify_bundle
-from observatory.contracts import EvaluationBundle
-from observatory.live import LiveManager
-from observatory.local import create_app
-from observatory.providers.registry import load_profiles
+from roadtest.agents import ScriptedAgent
+from roadtest.artifacts import verify_bundle
+from roadtest.contracts import EvaluationBundle
+from roadtest.live import LiveManager
+from roadtest.local import create_app
+from roadtest.providers.registry import load_profiles
 
 
 @pytest.fixture
@@ -25,13 +25,13 @@ def setup(tmp_path, monkeypatch):
     app = create_app(manager, tmp_path / "site")
     with TestClient(app, base_url="http://127.0.0.1:8765") as client:
         token = client.get("/api/live/bootstrap").json()["token"]
-        yield manager, client, {"X-Observatory-Token": token, "Origin": "http://127.0.0.1:8765"}
+        yield manager, client, {"X-Roadtest-Token": token, "Origin": "http://127.0.0.1:8765"}
 
 
 def request():
     return {
         "profile_ids": ["openai-luna"],
-        "base_id": "instrument_unavailable-01",
+        "base_id": "car_unavailable-01",
         "budget_usd": 0.5,
     }
 
@@ -123,7 +123,7 @@ def test_progress_is_observable_and_duplicate_runs_are_blocked_until_stop(setup)
         assert waiting.wait(2)
         progress = client.get(f"/api/live/runs/{run_id}").json()
         assert progress["status"] == "running"
-        assert progress["events"][0]["tool"] == "inspect_observatory"
+        assert progress["events"][0]["tool"] == "check_cars"
         assert client.post("/api/live/runs", json=request(), headers=headers).status_code == 409
         assert client.post(f"/api/live/runs/{run_id}/stop", headers=headers).status_code == 200
     finally:

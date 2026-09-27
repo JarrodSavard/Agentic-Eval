@@ -18,10 +18,10 @@ function run(command, args, env = process.env) {
 await run(process.execPath, ['node_modules/nuxt/bin/nuxt.mjs', 'generate'], {
   ...process.env,
   NUXT_APP_BASE_URL: '/',
-  OBSERVATORY_LOCAL_BUILD: '1',
+  ROADTEST_LOCAL_BUILD: '1',
   NUXT_TELEMETRY_DISABLED: '1',
 })
 const python = resolve(
   process.platform === 'win32' ? '.venv/Scripts/python.exe' : '.venv/bin/python',
 )
-await run(python, ['-m', 'observatory.cli', 'serve', '--site', '.local-output/public'])
+await run(python, ['-m', 'roadtest.cli', 'serve', '--site', '.local-output/public'])

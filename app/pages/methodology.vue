@@ -1,8 +1,8 @@
 <template>
   <section class="page-heading">
     <div>
-      <h1>Small by design.<br />Honest by construction.</h1>
-      <p class="lead">This is an engineering testbed, not a leaderboard.</p>
+      <h1>How do we know<br />it worked?</h1>
+      <p class="lead">The AI has to make the right booking, not just say the right thing.</p>
     </div>
   </section>
   <div class="methodology-layout">
@@ -12,21 +12,21 @@
     </aside>
     <div class="prose">
       <section id="measurement">
-        <h2>Measure the resulting world.</h2>
+        <h2>Check the actual booking.</h2>
         <p>
-          Agents schedule observations using a shared prompt, the same tool definitions, and
-          identical limits. Each base task has a clean control and a deterministic failure variant.
-          The grader reads the final reservations independently of the agent’s summary.
+          Each AI gets the same customer request and the same booking website. We try the request
+          twice: once normally, and once with a problem we deliberately introduce. A separate
+          checker reads the saved bookings.
         </p>
         <p>
-          A task passes only when all requested observations have valid reservations, unrelated
-          bookings remain unchanged, and no duplicates or conflicts exist. A different valid
-          schedule still passes. Retrying with the same idempotency key is a valid way to recover.
+          Each customer must get one suitable car on an allowed date. Other bookings must stay
+          unchanged, and no car can be booked twice on the same day. A different suitable car can
+          still be correct. A safe retry can confirm a booking without making another one.
         </p>
         <p>
-          Tool guards can block a bad action. We report that attempted action separately from actual
-          damage. Interrupted runs, provider errors, and budget limits are displayed separately from
-          completed task outcomes.
+          The booking site can reject a bad request. We show that rejection separately from the
+          final result: an AI can make a mistake, recover, and still finish correctly. If it stops
+          early, runs out of budget, or cannot contact its provider, we show that too.
         </p>
       </section>
       <section id="architecture">
@@ -47,12 +47,12 @@
         </p>
       </section>
       <section id="limits">
-        <h2>Keep the evidence in proportion.</h2>
+        <h2>What this example can tell you.</h2>
         <p>
-          Scripted demonstrations are deterministic policies written to exercise the test harness.
-          They are not Claude or OpenAI results. Real model runs, when published, are a tiny
-          illustrative sample. They cannot establish a statistically meaningful winner or predict
-          general agent reliability.
+          Scripted examples are deterministic policies written to exercise the test harness. They
+          are not Claude or OpenAI results. Real model runs, when published, are a tiny illustrative
+          sample. They cannot establish a statistically meaningful winner or predict general agent
+          reliability.
         </p>
         <p>
           A reproducible environment does not make a model’s behavior deterministic. Provider
@@ -66,15 +66,15 @@
         </p>
       </section>
       <section id="local">
-        <h2>A deliberately small footprint.</h2>
+        <h2>Try it on your computer.</h2>
         <p>
           Development and CI use offline tests. The default local command runs the scripted
-          policies. Live calls require local API keys and an explicit flag.
+          policies. Real AI runs require your local API key and clicking Start in the Live page.
         </p>
         <pre>
 uv sync
-uv run observatory run
-uv run observatory verify artifacts/evaluation.json</pre>
+uv run roadtest run
+uv run roadtest verify artifacts/evaluation.json</pre>
         <p>
           The paid showcase defaults to $0.50 and rejects budgets above $1. Each trial allows eight
           model turns, twelve tool calls, 512 output tokens per response, and 6,000 input tokens per

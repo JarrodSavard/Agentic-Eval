@@ -5,9 +5,9 @@ import { parseBundle } from '../../app/utils/import'
 const bundle = parseBundle(readFileSync('artifacts/test-data/bundle.json', 'utf8'))
 describe('plain language evidence', () => {
   it('distinguishes stale information from what actually changed', () => {
-    const trial = bundle.trials.find((t) => t.scenario_id === 'instrument_unavailable-01-fault')!
+    const trial = bundle.trials.find((t) => t.scenario_id === 'car_unavailable-01-fault')!
     const story = explainEvent(trial.events[0]!)
-    expect(story.title).toBe('Checked the schedule')
+    expect(story.title).toBe('The AI checks available cars')
     expect(story.detail).toContain('after')
     expect(story.detail).toContain('model has not seen')
   })
@@ -26,5 +26,5 @@ describe('plain language evidence', () => {
 it('never describes a rejected inspection as having received the schedule', () => {
   const event = structuredClone(bundle.trials[0]!.events[0]!)
   event.result = { data: {}, error: 'invalid_arguments', fault: null }
-  expect(explainEvent(event).title).toBe('Schedule check rejected')
+  expect(explainEvent(event).title).toBe('The car check was rejected')
 })

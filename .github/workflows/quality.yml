@@ -43,14 +43,14 @@ jobs:
       - run: uv run pytest -q
       - name: Verify generated contracts
         run: |
-          uv run observatory schema
+          uv run roadtest schema
           git diff --exit-code -- contracts/
           pnpm check:contracts
       - name: Verify published evidence
-        run: uv run observatory verify public/data/bundle.json
+        run: uv run roadtest verify public/data/bundle.json
       - name: Verify scripted fixture reproducibility
         run: |
-          uv run observatory demo --output artifacts/regenerated
+          uv run roadtest demo --output artifacts/regenerated
           python scripts/check-demo.py
       - run: pnpm format:check
       - run: pnpm typecheck

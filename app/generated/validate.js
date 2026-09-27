@@ -3,6 +3,34 @@ export const validate = validate20;
 export default validate20;
 const schema31 = {
   $defs: {
+    Booking: {
+      additionalProperties: false,
+      properties: {
+        id: { title: "Id", type: "string" },
+        request_id: { title: "Request Id", type: "string" },
+        car_id: { title: "Car Id", type: "string" },
+        day: { title: "Day", type: "string" },
+      },
+      required: ["id", "request_id", "car_id", "day"],
+      title: "Booking",
+      type: "object",
+    },
+    Car: {
+      additionalProperties: false,
+      properties: {
+        id: { title: "Id", type: "string" },
+        name: { title: "Name", type: "string" },
+        features: {
+          items: { type: "string" },
+          title: "Features",
+          type: "array",
+        },
+        available: { default: true, title: "Available", type: "boolean" },
+      },
+      required: ["id", "name", "features", "available"],
+      title: "Car",
+      type: "object",
+    },
     ExperimentConfig: {
       additionalProperties: false,
       properties: {
@@ -81,62 +109,35 @@ const schema31 = {
       title: "Grade",
       type: "object",
     },
-    Instrument: {
+    RentalRequest: {
       additionalProperties: false,
       properties: {
         id: { title: "Id", type: "string" },
-        name: { title: "Name", type: "string" },
-        bands: { items: { type: "string" }, title: "Bands", type: "array" },
-        available: { default: true, title: "Available", type: "boolean" },
-      },
-      required: ["id", "name", "bands", "available"],
-      title: "Instrument",
-      type: "object",
-    },
-    ObservationRequest: {
-      additionalProperties: false,
-      properties: {
-        id: { title: "Id", type: "string" },
-        target: { title: "Target", type: "string" },
-        band: { title: "Band", type: "string" },
-        allowed_slots: {
-          items: { type: "integer" },
-          title: "Allowed Slots",
+        customer: { title: "Customer", type: "string" },
+        trip: { title: "Trip", type: "string" },
+        required_feature: { title: "Required Feature", type: "string" },
+        allowed_days: {
+          items: { type: "string" },
+          title: "Allowed Days",
           type: "array",
         },
       },
-      required: ["id", "target", "band", "allowed_slots"],
-      title: "ObservationRequest",
+      required: ["id", "customer", "trip", "required_feature", "allowed_days"],
+      title: "RentalRequest",
       type: "object",
     },
-    ObservatoryState: {
+    RentalState: {
       additionalProperties: false,
       properties: {
-        instruments: {
-          items: { $ref: "#/$defs/Instrument" },
-          title: "Instruments",
-          type: "array",
-        },
-        reservations: {
-          items: { $ref: "#/$defs/Reservation" },
-          title: "Reservations",
+        cars: { items: { $ref: "#/$defs/Car" }, title: "Cars", type: "array" },
+        bookings: {
+          items: { $ref: "#/$defs/Booking" },
+          title: "Bookings",
           type: "array",
         },
       },
-      required: ["instruments", "reservations"],
-      title: "ObservatoryState",
-      type: "object",
-    },
-    Reservation: {
-      additionalProperties: false,
-      properties: {
-        id: { title: "Id", type: "string" },
-        request_id: { title: "Request Id", type: "string" },
-        instrument_id: { title: "Instrument Id", type: "string" },
-        slot: { title: "Slot", type: "integer" },
-      },
-      required: ["id", "request_id", "instrument_id", "slot"],
-      title: "Reservation",
+      required: ["cars", "bookings"],
+      title: "RentalState",
       type: "object",
     },
     Scenario: {
@@ -145,29 +146,25 @@ const schema31 = {
         id: { title: "Id", type: "string" },
         base_id: { title: "Base Id", type: "string" },
         version: {
-          const: "1.0",
-          default: "1.0",
+          const: "2.0",
+          default: "2.0",
           title: "Version",
           type: "string",
         },
         title: { title: "Title", type: "string" },
         description: { title: "Description", type: "string" },
         family: {
-          enum: [
-            "transient_read",
-            "instrument_unavailable",
-            "committed_timeout",
-          ],
+          enum: ["transient_read", "car_unavailable", "committed_timeout"],
           title: "Family",
           type: "string",
         },
         variant: { enum: ["clean", "fault"], title: "Variant", type: "string" },
         requests: {
-          items: { $ref: "#/$defs/ObservationRequest" },
+          items: { $ref: "#/$defs/RentalRequest" },
           title: "Requests",
           type: "array",
         },
-        initial_state: { $ref: "#/$defs/ObservatoryState" },
+        initial_state: { $ref: "#/$defs/RentalState" },
       },
       required: [
         "id",
@@ -195,11 +192,7 @@ const schema31 = {
         fault: {
           anyOf: [
             {
-              enum: [
-                "transient_read",
-                "instrument_unavailable",
-                "committed_timeout",
-              ],
+              enum: ["transient_read", "car_unavailable", "committed_timeout"],
               type: "string",
             },
             { type: "null" },
@@ -244,7 +237,7 @@ const schema31 = {
           default: null,
           title: "Text",
         },
-        state: { $ref: "#/$defs/ObservatoryState" },
+        state: { $ref: "#/$defs/RentalState" },
       },
       required: [
         "sequence",
@@ -320,7 +313,7 @@ const schema31 = {
           type: "object",
         },
         grade: { $ref: "#/$defs/Grade" },
-        final_state: { $ref: "#/$defs/ObservatoryState" },
+        final_state: { $ref: "#/$defs/RentalState" },
         events: {
           items: { $ref: "#/$defs/TraceEvent" },
           title: "Events",
@@ -377,8 +370,8 @@ const schema31 = {
   additionalProperties: false,
   properties: {
     schema_version: {
-      const: "1.0",
-      default: "1.0",
+      const: "2.0",
+      default: "2.0",
       title: "Schema Version",
       type: "string",
     },
@@ -386,8 +379,8 @@ const schema31 = {
     created_at: { title: "Created At", type: "string" },
     code_revision: { title: "Code Revision", type: "string" },
     prompt_version: {
-      const: "1.0",
-      default: "1.0",
+      const: "2.0",
+      default: "2.0",
       title: "Prompt Version",
       type: "string",
     },
@@ -479,21 +472,21 @@ const schema33 = {
   properties: {
     id: { title: "Id", type: "string" },
     base_id: { title: "Base Id", type: "string" },
-    version: { const: "1.0", default: "1.0", title: "Version", type: "string" },
+    version: { const: "2.0", default: "2.0", title: "Version", type: "string" },
     title: { title: "Title", type: "string" },
     description: { title: "Description", type: "string" },
     family: {
-      enum: ["transient_read", "instrument_unavailable", "committed_timeout"],
+      enum: ["transient_read", "car_unavailable", "committed_timeout"],
       title: "Family",
       type: "string",
     },
     variant: { enum: ["clean", "fault"], title: "Variant", type: "string" },
     requests: {
-      items: { $ref: "#/$defs/ObservationRequest" },
+      items: { $ref: "#/$defs/RentalRequest" },
       title: "Requests",
       type: "array",
     },
-    initial_state: { $ref: "#/$defs/ObservatoryState" },
+    initial_state: { $ref: "#/$defs/RentalState" },
   },
   required: [
     "id",
@@ -513,35 +506,32 @@ const schema34 = {
   additionalProperties: false,
   properties: {
     id: { title: "Id", type: "string" },
-    target: { title: "Target", type: "string" },
-    band: { title: "Band", type: "string" },
-    allowed_slots: {
-      items: { type: "integer" },
-      title: "Allowed Slots",
+    customer: { title: "Customer", type: "string" },
+    trip: { title: "Trip", type: "string" },
+    required_feature: { title: "Required Feature", type: "string" },
+    allowed_days: {
+      items: { type: "string" },
+      title: "Allowed Days",
       type: "array",
     },
   },
-  required: ["id", "target", "band", "allowed_slots"],
-  title: "ObservationRequest",
+  required: ["id", "customer", "trip", "required_feature", "allowed_days"],
+  title: "RentalRequest",
   type: "object",
 };
 const func1 = Object.prototype.hasOwnProperty;
 const schema35 = {
   additionalProperties: false,
   properties: {
-    instruments: {
-      items: { $ref: "#/$defs/Instrument" },
-      title: "Instruments",
-      type: "array",
-    },
-    reservations: {
-      items: { $ref: "#/$defs/Reservation" },
-      title: "Reservations",
+    cars: { items: { $ref: "#/$defs/Car" }, title: "Cars", type: "array" },
+    bookings: {
+      items: { $ref: "#/$defs/Booking" },
+      title: "Bookings",
       type: "array",
     },
   },
-  required: ["instruments", "reservations"],
-  title: "ObservatoryState",
+  required: ["cars", "bookings"],
+  title: "RentalState",
   type: "object",
 };
 const schema36 = {
@@ -549,11 +539,11 @@ const schema36 = {
   properties: {
     id: { title: "Id", type: "string" },
     name: { title: "Name", type: "string" },
-    bands: { items: { type: "string" }, title: "Bands", type: "array" },
+    features: { items: { type: "string" }, title: "Features", type: "array" },
     available: { default: true, title: "Available", type: "boolean" },
   },
-  required: ["id", "name", "bands", "available"],
-  title: "Instrument",
+  required: ["id", "name", "features", "available"],
+  title: "Car",
   type: "object",
 };
 const schema37 = {
@@ -561,11 +551,11 @@ const schema37 = {
   properties: {
     id: { title: "Id", type: "string" },
     request_id: { title: "Request Id", type: "string" },
-    instrument_id: { title: "Instrument Id", type: "string" },
-    slot: { title: "Slot", type: "integer" },
+    car_id: { title: "Car Id", type: "string" },
+    day: { title: "Day", type: "string" },
   },
-  required: ["id", "request_id", "instrument_id", "slot"],
-  title: "Reservation",
+  required: ["id", "request_id", "car_id", "day"],
+  title: "Booking",
   type: "object",
 };
 function validate22(
@@ -591,8 +581,8 @@ function validate22(
     if (data && typeof data == "object" && !Array.isArray(data)) {
       let missing0;
       if (
-        (data.instruments === undefined && (missing0 = "instruments")) ||
-        (data.reservations === undefined && (missing0 = "reservations"))
+        (data.cars === undefined && (missing0 = "cars")) ||
+        (data.bookings === undefined && (missing0 = "bookings"))
       ) {
         validate22.errors = [
           {
@@ -607,7 +597,7 @@ function validate22(
       } else {
         const _errs1 = errors;
         for (const key0 in data) {
-          if (!(key0 === "instruments" || key0 === "reservations")) {
+          if (!(key0 === "cars" || key0 === "bookings")) {
             validate22.errors = [
               {
                 instancePath,
@@ -622,8 +612,8 @@ function validate22(
           }
         }
         if (_errs1 === errors) {
-          if (data.instruments !== undefined) {
-            let data0 = data.instruments;
+          if (data.cars !== undefined) {
+            let data0 = data.cars;
             const _errs2 = errors;
             if (errors === _errs2) {
               if (Array.isArray(data0)) {
@@ -643,14 +633,15 @@ function validate22(
                       if (
                         (data1.id === undefined && (missing1 = "id")) ||
                         (data1.name === undefined && (missing1 = "name")) ||
-                        (data1.bands === undefined && (missing1 = "bands")) ||
+                        (data1.features === undefined &&
+                          (missing1 = "features")) ||
                         (data1.available === undefined &&
                           (missing1 = "available"))
                       ) {
                         validate22.errors = [
                           {
-                            instancePath: instancePath + "/instruments/" + i0,
-                            schemaPath: "#/$defs/Instrument/required",
+                            instancePath: instancePath + "/cars/" + i0,
+                            schemaPath: "#/$defs/Car/required",
                             keyword: "required",
                             params: { missingProperty: missing1 },
                             message:
@@ -664,15 +655,13 @@ function validate22(
                           if (!(
                             key1 === "id" ||
                             key1 === "name" ||
-                            key1 === "bands" ||
+                            key1 === "features" ||
                             key1 === "available"
                           )) {
                             validate22.errors = [
                               {
-                                instancePath:
-                                  instancePath + "/instruments/" + i0,
-                                schemaPath:
-                                  "#/$defs/Instrument/additionalProperties",
+                                instancePath: instancePath + "/cars/" + i0,
+                                schemaPath: "#/$defs/Car/additionalProperties",
                                 keyword: "additionalProperties",
                                 params: { additionalProperty: key1 },
                                 message: "must NOT have additional properties",
@@ -689,9 +678,8 @@ function validate22(
                               validate22.errors = [
                                 {
                                   instancePath:
-                                    instancePath + "/instruments/" + i0 + "/id",
-                                  schemaPath:
-                                    "#/$defs/Instrument/properties/id/type",
+                                    instancePath + "/cars/" + i0 + "/id",
+                                  schemaPath: "#/$defs/Car/properties/id/type",
                                   keyword: "type",
                                   params: { type: "string" },
                                   message: "must be string",
@@ -710,12 +698,9 @@ function validate22(
                                 validate22.errors = [
                                   {
                                     instancePath:
-                                      instancePath +
-                                      "/instruments/" +
-                                      i0 +
-                                      "/name",
+                                      instancePath + "/cars/" + i0 + "/name",
                                     schemaPath:
-                                      "#/$defs/Instrument/properties/name/type",
+                                      "#/$defs/Car/properties/name/type",
                                     keyword: "type",
                                     params: { type: "string" },
                                     message: "must be string",
@@ -728,8 +713,8 @@ function validate22(
                               var valid3 = true;
                             }
                             if (valid3) {
-                              if (data1.bands !== undefined) {
-                                let data4 = data1.bands;
+                              if (data1.features !== undefined) {
+                                let data4 = data1.features;
                                 const _errs12 = errors;
                                 if (errors === _errs12) {
                                   if (Array.isArray(data4)) {
@@ -742,12 +727,12 @@ function validate22(
                                           {
                                             instancePath:
                                               instancePath +
-                                              "/instruments/" +
+                                              "/cars/" +
                                               i0 +
-                                              "/bands/" +
+                                              "/features/" +
                                               i1,
                                             schemaPath:
-                                              "#/$defs/Instrument/properties/bands/items/type",
+                                              "#/$defs/Car/properties/features/items/type",
                                             keyword: "type",
                                             params: { type: "string" },
                                             message: "must be string",
@@ -765,11 +750,11 @@ function validate22(
                                       {
                                         instancePath:
                                           instancePath +
-                                          "/instruments/" +
+                                          "/cars/" +
                                           i0 +
-                                          "/bands",
+                                          "/features",
                                         schemaPath:
-                                          "#/$defs/Instrument/properties/bands/type",
+                                          "#/$defs/Car/properties/features/type",
                                         keyword: "type",
                                         params: { type: "array" },
                                         message: "must be array",
@@ -790,11 +775,11 @@ function validate22(
                                       {
                                         instancePath:
                                           instancePath +
-                                          "/instruments/" +
+                                          "/cars/" +
                                           i0 +
                                           "/available",
                                         schemaPath:
-                                          "#/$defs/Instrument/properties/available/type",
+                                          "#/$defs/Car/properties/available/type",
                                         keyword: "type",
                                         params: { type: "boolean" },
                                         message: "must be boolean",
@@ -814,8 +799,8 @@ function validate22(
                     } else {
                       validate22.errors = [
                         {
-                          instancePath: instancePath + "/instruments/" + i0,
-                          schemaPath: "#/$defs/Instrument/type",
+                          instancePath: instancePath + "/cars/" + i0,
+                          schemaPath: "#/$defs/Car/type",
                           keyword: "type",
                           params: { type: "object" },
                           message: "must be object",
@@ -832,8 +817,8 @@ function validate22(
               } else {
                 validate22.errors = [
                   {
-                    instancePath: instancePath + "/instruments",
-                    schemaPath: "#/properties/instruments/type",
+                    instancePath: instancePath + "/cars",
+                    schemaPath: "#/properties/cars/type",
                     keyword: "type",
                     params: { type: "array" },
                     message: "must be array",
@@ -847,8 +832,8 @@ function validate22(
             var valid0 = true;
           }
           if (valid0) {
-            if (data.reservations !== undefined) {
-              let data7 = data.reservations;
+            if (data.bookings !== undefined) {
+              let data7 = data.bookings;
               const _errs18 = errors;
               if (errors === _errs18) {
                 if (Array.isArray(data7)) {
@@ -869,15 +854,14 @@ function validate22(
                           (data8.id === undefined && (missing2 = "id")) ||
                           (data8.request_id === undefined &&
                             (missing2 = "request_id")) ||
-                          (data8.instrument_id === undefined &&
-                            (missing2 = "instrument_id")) ||
-                          (data8.slot === undefined && (missing2 = "slot"))
+                          (data8.car_id === undefined &&
+                            (missing2 = "car_id")) ||
+                          (data8.day === undefined && (missing2 = "day"))
                         ) {
                           validate22.errors = [
                             {
-                              instancePath:
-                                instancePath + "/reservations/" + i2,
-                              schemaPath: "#/$defs/Reservation/required",
+                              instancePath: instancePath + "/bookings/" + i2,
+                              schemaPath: "#/$defs/Booking/required",
                               keyword: "required",
                               params: { missingProperty: missing2 },
                               message:
@@ -893,15 +877,15 @@ function validate22(
                             if (!(
                               key2 === "id" ||
                               key2 === "request_id" ||
-                              key2 === "instrument_id" ||
-                              key2 === "slot"
+                              key2 === "car_id" ||
+                              key2 === "day"
                             )) {
                               validate22.errors = [
                                 {
                                   instancePath:
-                                    instancePath + "/reservations/" + i2,
+                                    instancePath + "/bookings/" + i2,
                                   schemaPath:
-                                    "#/$defs/Reservation/additionalProperties",
+                                    "#/$defs/Booking/additionalProperties",
                                   keyword: "additionalProperties",
                                   params: { additionalProperty: key2 },
                                   message:
@@ -919,12 +903,9 @@ function validate22(
                                 validate22.errors = [
                                   {
                                     instancePath:
-                                      instancePath +
-                                      "/reservations/" +
-                                      i2 +
-                                      "/id",
+                                      instancePath + "/bookings/" + i2 + "/id",
                                     schemaPath:
-                                      "#/$defs/Reservation/properties/id/type",
+                                      "#/$defs/Booking/properties/id/type",
                                     keyword: "type",
                                     params: { type: "string" },
                                     message: "must be string",
@@ -944,11 +925,11 @@ function validate22(
                                     {
                                       instancePath:
                                         instancePath +
-                                        "/reservations/" +
+                                        "/bookings/" +
                                         i2 +
                                         "/request_id",
                                       schemaPath:
-                                        "#/$defs/Reservation/properties/request_id/type",
+                                        "#/$defs/Booking/properties/request_id/type",
                                       keyword: "type",
                                       params: { type: "string" },
                                       message: "must be string",
@@ -961,18 +942,18 @@ function validate22(
                                 var valid7 = true;
                               }
                               if (valid7) {
-                                if (data8.instrument_id !== undefined) {
+                                if (data8.car_id !== undefined) {
                                   const _errs28 = errors;
-                                  if (typeof data8.instrument_id !== "string") {
+                                  if (typeof data8.car_id !== "string") {
                                     validate22.errors = [
                                       {
                                         instancePath:
                                           instancePath +
-                                          "/reservations/" +
+                                          "/bookings/" +
                                           i2 +
-                                          "/instrument_id",
+                                          "/car_id",
                                         schemaPath:
-                                          "#/$defs/Reservation/properties/instrument_id/type",
+                                          "#/$defs/Booking/properties/car_id/type",
                                         keyword: "type",
                                         params: { type: "string" },
                                         message: "must be string",
@@ -985,26 +966,21 @@ function validate22(
                                   var valid7 = true;
                                 }
                                 if (valid7) {
-                                  if (data8.slot !== undefined) {
-                                    let data12 = data8.slot;
+                                  if (data8.day !== undefined) {
                                     const _errs30 = errors;
-                                    if (!(
-                                      typeof data12 == "number" &&
-                                      !(data12 % 1) &&
-                                      !isNaN(data12)
-                                    )) {
+                                    if (typeof data8.day !== "string") {
                                       validate22.errors = [
                                         {
                                           instancePath:
                                             instancePath +
-                                            "/reservations/" +
+                                            "/bookings/" +
                                             i2 +
-                                            "/slot",
+                                            "/day",
                                           schemaPath:
-                                            "#/$defs/Reservation/properties/slot/type",
+                                            "#/$defs/Booking/properties/day/type",
                                           keyword: "type",
-                                          params: { type: "integer" },
-                                          message: "must be integer",
+                                          params: { type: "string" },
+                                          message: "must be string",
                                         },
                                       ];
                                       return false;
@@ -1021,8 +997,8 @@ function validate22(
                       } else {
                         validate22.errors = [
                           {
-                            instancePath: instancePath + "/reservations/" + i2,
-                            schemaPath: "#/$defs/Reservation/type",
+                            instancePath: instancePath + "/bookings/" + i2,
+                            schemaPath: "#/$defs/Booking/type",
                             keyword: "type",
                             params: { type: "object" },
                             message: "must be object",
@@ -1039,8 +1015,8 @@ function validate22(
                 } else {
                   validate22.errors = [
                     {
-                      instancePath: instancePath + "/reservations",
-                      schemaPath: "#/properties/reservations/type",
+                      instancePath: instancePath + "/bookings",
+                      schemaPath: "#/properties/bookings/type",
                       keyword: "type",
                       params: { type: "array" },
                       message: "must be array",
@@ -1191,13 +1167,13 @@ function validate21(
                   ];
                   return false;
                 }
-                if ("1.0" !== data2) {
+                if ("2.0" !== data2) {
                   validate21.errors = [
                     {
                       instancePath: instancePath + "/version",
                       schemaPath: "#/properties/version/const",
                       keyword: "const",
-                      params: { allowedValue: "1.0" },
+                      params: { allowedValue: "2.0" },
                       message: "must be equal to constant",
                     },
                   ];
@@ -1263,7 +1239,7 @@ function validate21(
                       }
                       if (!(
                         data5 === "transient_read" ||
-                        data5 === "instrument_unavailable" ||
+                        data5 === "car_unavailable" ||
                         data5 === "committed_timeout"
                       )) {
                         validate21.errors = [
@@ -1341,19 +1317,21 @@ function validate21(
                                     if (
                                       (data8.id === undefined &&
                                         (missing1 = "id")) ||
-                                      (data8.target === undefined &&
-                                        (missing1 = "target")) ||
-                                      (data8.band === undefined &&
-                                        (missing1 = "band")) ||
-                                      (data8.allowed_slots === undefined &&
-                                        (missing1 = "allowed_slots"))
+                                      (data8.customer === undefined &&
+                                        (missing1 = "customer")) ||
+                                      (data8.trip === undefined &&
+                                        (missing1 = "trip")) ||
+                                      (data8.required_feature === undefined &&
+                                        (missing1 = "required_feature")) ||
+                                      (data8.allowed_days === undefined &&
+                                        (missing1 = "allowed_days"))
                                     ) {
                                       validate21.errors = [
                                         {
                                           instancePath:
                                             instancePath + "/requests/" + i0,
                                           schemaPath:
-                                            "#/$defs/ObservationRequest/required",
+                                            "#/$defs/RentalRequest/required",
                                           keyword: "required",
                                           params: { missingProperty: missing1 },
                                           message:
@@ -1368,9 +1346,10 @@ function validate21(
                                       for (const key1 in data8) {
                                         if (!(
                                           key1 === "id" ||
-                                          key1 === "target" ||
-                                          key1 === "band" ||
-                                          key1 === "allowed_slots"
+                                          key1 === "customer" ||
+                                          key1 === "trip" ||
+                                          key1 === "required_feature" ||
+                                          key1 === "allowed_days"
                                         )) {
                                           validate21.errors = [
                                             {
@@ -1379,7 +1358,7 @@ function validate21(
                                                 "/requests/" +
                                                 i0,
                                               schemaPath:
-                                                "#/$defs/ObservationRequest/additionalProperties",
+                                                "#/$defs/RentalRequest/additionalProperties",
                                               keyword: "additionalProperties",
                                               params: {
                                                 additionalProperty: key1,
@@ -1404,7 +1383,7 @@ function validate21(
                                                   i0 +
                                                   "/id",
                                                 schemaPath:
-                                                  "#/$defs/ObservationRequest/properties/id/type",
+                                                  "#/$defs/RentalRequest/properties/id/type",
                                                 keyword: "type",
                                                 params: { type: "string" },
                                                 message: "must be string",
@@ -1417,10 +1396,10 @@ function validate21(
                                           var valid3 = true;
                                         }
                                         if (valid3) {
-                                          if (data8.target !== undefined) {
+                                          if (data8.customer !== undefined) {
                                             const _errs24 = errors;
                                             if (
-                                              typeof data8.target !== "string"
+                                              typeof data8.customer !== "string"
                                             ) {
                                               validate21.errors = [
                                                 {
@@ -1428,9 +1407,9 @@ function validate21(
                                                     instancePath +
                                                     "/requests/" +
                                                     i0 +
-                                                    "/target",
+                                                    "/customer",
                                                   schemaPath:
-                                                    "#/$defs/ObservationRequest/properties/target/type",
+                                                    "#/$defs/RentalRequest/properties/customer/type",
                                                   keyword: "type",
                                                   params: { type: "string" },
                                                   message: "must be string",
@@ -1443,10 +1422,10 @@ function validate21(
                                             var valid3 = true;
                                           }
                                           if (valid3) {
-                                            if (data8.band !== undefined) {
+                                            if (data8.trip !== undefined) {
                                               const _errs26 = errors;
                                               if (
-                                                typeof data8.band !== "string"
+                                                typeof data8.trip !== "string"
                                               ) {
                                                 validate21.errors = [
                                                   {
@@ -1454,9 +1433,9 @@ function validate21(
                                                       instancePath +
                                                       "/requests/" +
                                                       i0 +
-                                                      "/band",
+                                                      "/trip",
                                                     schemaPath:
-                                                      "#/$defs/ObservationRequest/properties/band/type",
+                                                      "#/$defs/RentalRequest/properties/trip/type",
                                                     keyword: "type",
                                                     params: { type: "string" },
                                                     message: "must be string",
@@ -1470,79 +1449,111 @@ function validate21(
                                             }
                                             if (valid3) {
                                               if (
-                                                data8.allowed_slots !==
+                                                data8.required_feature !==
                                                 undefined
                                               ) {
-                                                let data12 =
-                                                  data8.allowed_slots;
                                                 const _errs28 = errors;
-                                                if (errors === _errs28) {
-                                                  if (Array.isArray(data12)) {
-                                                    var valid4 = true;
-                                                    const len1 = data12.length;
-                                                    for (
-                                                      let i1 = 0;
-                                                      i1 < len1;
-                                                      i1++
-                                                    ) {
-                                                      let data13 = data12[i1];
-                                                      const _errs30 = errors;
-                                                      if (!(
-                                                        typeof data13 ==
-                                                          "number" &&
-                                                        !(data13 % 1) &&
-                                                        !isNaN(data13)
-                                                      )) {
-                                                        validate21.errors = [
-                                                          {
-                                                            instancePath:
-                                                              instancePath +
-                                                              "/requests/" +
-                                                              i0 +
-                                                              "/allowed_slots/" +
-                                                              i1,
-                                                            schemaPath:
-                                                              "#/$defs/ObservationRequest/properties/allowed_slots/items/type",
-                                                            keyword: "type",
-                                                            params: {
-                                                              type: "integer",
-                                                            },
-                                                            message:
-                                                              "must be integer",
-                                                          },
-                                                        ];
-                                                        return false;
-                                                      }
-                                                      var valid4 =
-                                                        _errs30 === errors;
-                                                      if (!valid4) {
-                                                        break;
-                                                      }
-                                                    }
-                                                  } else {
-                                                    validate21.errors = [
-                                                      {
-                                                        instancePath:
-                                                          instancePath +
-                                                          "/requests/" +
-                                                          i0 +
-                                                          "/allowed_slots",
-                                                        schemaPath:
-                                                          "#/$defs/ObservationRequest/properties/allowed_slots/type",
-                                                        keyword: "type",
-                                                        params: {
-                                                          type: "array",
-                                                        },
-                                                        message:
-                                                          "must be array",
+                                                if (
+                                                  typeof data8.required_feature !==
+                                                  "string"
+                                                ) {
+                                                  validate21.errors = [
+                                                    {
+                                                      instancePath:
+                                                        instancePath +
+                                                        "/requests/" +
+                                                        i0 +
+                                                        "/required_feature",
+                                                      schemaPath:
+                                                        "#/$defs/RentalRequest/properties/required_feature/type",
+                                                      keyword: "type",
+                                                      params: {
+                                                        type: "string",
                                                       },
-                                                    ];
-                                                    return false;
-                                                  }
+                                                      message: "must be string",
+                                                    },
+                                                  ];
+                                                  return false;
                                                 }
                                                 var valid3 = _errs28 === errors;
                                               } else {
                                                 var valid3 = true;
+                                              }
+                                              if (valid3) {
+                                                if (
+                                                  data8.allowed_days !==
+                                                  undefined
+                                                ) {
+                                                  let data13 =
+                                                    data8.allowed_days;
+                                                  const _errs30 = errors;
+                                                  if (errors === _errs30) {
+                                                    if (Array.isArray(data13)) {
+                                                      var valid4 = true;
+                                                      const len1 =
+                                                        data13.length;
+                                                      for (
+                                                        let i1 = 0;
+                                                        i1 < len1;
+                                                        i1++
+                                                      ) {
+                                                        const _errs32 = errors;
+                                                        if (
+                                                          typeof data13[i1] !==
+                                                          "string"
+                                                        ) {
+                                                          validate21.errors = [
+                                                            {
+                                                              instancePath:
+                                                                instancePath +
+                                                                "/requests/" +
+                                                                i0 +
+                                                                "/allowed_days/" +
+                                                                i1,
+                                                              schemaPath:
+                                                                "#/$defs/RentalRequest/properties/allowed_days/items/type",
+                                                              keyword: "type",
+                                                              params: {
+                                                                type: "string",
+                                                              },
+                                                              message:
+                                                                "must be string",
+                                                            },
+                                                          ];
+                                                          return false;
+                                                        }
+                                                        var valid4 =
+                                                          _errs32 === errors;
+                                                        if (!valid4) {
+                                                          break;
+                                                        }
+                                                      }
+                                                    } else {
+                                                      validate21.errors = [
+                                                        {
+                                                          instancePath:
+                                                            instancePath +
+                                                            "/requests/" +
+                                                            i0 +
+                                                            "/allowed_days",
+                                                          schemaPath:
+                                                            "#/$defs/RentalRequest/properties/allowed_days/type",
+                                                          keyword: "type",
+                                                          params: {
+                                                            type: "array",
+                                                          },
+                                                          message:
+                                                            "must be array",
+                                                        },
+                                                      ];
+                                                      return false;
+                                                    }
+                                                  }
+                                                  var valid3 =
+                                                    _errs30 === errors;
+                                                } else {
+                                                  var valid3 = true;
+                                                }
                                               }
                                             }
                                           }
@@ -1555,7 +1566,7 @@ function validate21(
                                         instancePath:
                                           instancePath + "/requests/" + i0,
                                         schemaPath:
-                                          "#/$defs/ObservationRequest/type",
+                                          "#/$defs/RentalRequest/type",
                                         keyword: "type",
                                         params: { type: "object" },
                                         message: "must be object",
@@ -1588,7 +1599,7 @@ function validate21(
                         }
                         if (valid0) {
                           if (data.initial_state !== undefined) {
-                            const _errs32 = errors;
+                            const _errs34 = errors;
                             if (
                               !validate22(data.initial_state, {
                                 instancePath: instancePath + "/initial_state",
@@ -1604,7 +1615,7 @@ function validate21(
                                   : vErrors.concat(validate22.errors);
                               errors = vErrors.length;
                             }
-                            var valid0 = _errs32 === errors;
+                            var valid0 = _errs34 === errors;
                           } else {
                             var valid0 = true;
                           }
@@ -1688,7 +1699,7 @@ const schema38 = {
     usage_complete: { default: true, title: "Usage Complete", type: "boolean" },
     settings: { additionalProperties: true, title: "Settings", type: "object" },
     grade: { $ref: "#/$defs/Grade" },
-    final_state: { $ref: "#/$defs/ObservatoryState" },
+    final_state: { $ref: "#/$defs/RentalState" },
     events: {
       items: { $ref: "#/$defs/TraceEvent" },
       title: "Events",
@@ -1786,7 +1797,7 @@ const schema41 = {
       default: null,
       title: "Text",
     },
-    state: { $ref: "#/$defs/ObservatoryState" },
+    state: { $ref: "#/$defs/RentalState" },
   },
   required: [
     "sequence",
@@ -1813,11 +1824,7 @@ const schema42 = {
     fault: {
       anyOf: [
         {
-          enum: [
-            "transient_read",
-            "instrument_unavailable",
-            "committed_timeout",
-          ],
+          enum: ["transient_read", "car_unavailable", "committed_timeout"],
           type: "string",
         },
         { type: "null" },
@@ -2326,7 +2333,7 @@ function validate27(
                                     }
                                     if (!(
                                       data8 === "transient_read" ||
-                                      data8 === "instrument_unavailable" ||
+                                      data8 === "car_unavailable" ||
                                       data8 === "committed_timeout"
                                     )) {
                                       const err13 = {
@@ -4013,13 +4020,13 @@ function validate20(
               ];
               return false;
             }
-            if ("1.0" !== data0) {
+            if ("2.0" !== data0) {
               validate20.errors = [
                 {
                   instancePath: instancePath + "/schema_version",
                   schemaPath: "#/properties/schema_version/const",
                   keyword: "const",
-                  params: { allowedValue: "1.0" },
+                  params: { allowedValue: "2.0" },
                   message: "must be equal to constant",
                 },
               ];
@@ -4102,13 +4109,13 @@ function validate20(
                       ];
                       return false;
                     }
-                    if ("1.0" !== data4) {
+                    if ("2.0" !== data4) {
                       validate20.errors = [
                         {
                           instancePath: instancePath + "/prompt_version",
                           schemaPath: "#/properties/prompt_version/const",
                           keyword: "const",
-                          params: { allowedValue: "1.0" },
+                          params: { allowedValue: "2.0" },
                           message: "must be equal to constant",
                         },
                       ];

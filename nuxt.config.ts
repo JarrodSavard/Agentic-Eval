@@ -6,12 +6,12 @@ export default defineNuxtConfig({
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {
-      title: 'Observatory — Agent Reliability Lab',
+      title: 'Road Test — AI booking challenge',
       meta: [
         {
           name: 'description',
           content:
-            'A small, transparent testbed for understanding how agents recover when tools fail.',
+            'Can AI book the right rental car when things go wrong? Watch its actions and compare the results.',
         },
       ],
       htmlAttrs: { lang: 'en' },
@@ -20,7 +20,7 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css'],
   typescript: { strict: true },
   nitro: {
-    ...(process.env.OBSERVATORY_LOCAL_BUILD === '1'
+    ...(process.env.ROADTEST_LOCAL_BUILD === '1'
       ? {
           output: {
             dir: resolve('.local-output'),

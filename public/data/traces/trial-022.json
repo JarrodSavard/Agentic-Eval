@@ -1,0 +1,432 @@
+{
+  "id": "car_unavailable-02-fault--scripted-recovery-v1--1",
+  "scenario_id": "car_unavailable-02-fault",
+  "agent": "Recovery reference",
+  "provider": "scripted",
+  "model": "scripted-recovery-v1",
+  "returned_model": null,
+  "source": "scripted",
+  "repetition": 1,
+  "status": "completed",
+  "started_at": "2026-09-26T00:00:00+00:00",
+  "latency_ms": 0.0,
+  "tool_calls": 4,
+  "invalid_actions": 1,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "estimated_cost_usd": 0.0,
+  "reserved_cost_usd": 0.0,
+  "usage_complete": true,
+  "settings": {
+    "policy": "scripted-recovery-v1"
+  },
+  "grade": {
+    "success": true,
+    "completed_requests": 1,
+    "total_requests": 1,
+    "violations": []
+  },
+  "final_state": {
+    "cars": [
+      {
+        "id": "blue-suv",
+        "name": "Blue SUV",
+        "features": [
+          "child_seat",
+          "large_boot"
+        ],
+        "available": false
+      },
+      {
+        "id": "red-suv",
+        "name": "Red SUV",
+        "features": [
+          "child_seat",
+          "large_boot"
+        ],
+        "available": true
+      },
+      {
+        "id": "city-car",
+        "name": "City hatchback",
+        "features": [
+          "child_seat"
+        ],
+        "available": true
+      }
+    ],
+    "bookings": [
+      {
+        "id": "existing-1",
+        "request_id": "another-customer",
+        "car_id": "blue-suv",
+        "day": "2026-10-01"
+      },
+      {
+        "id": "reservation-1",
+        "request_id": "trip-1",
+        "car_id": "red-suv",
+        "day": "2026-10-06"
+      }
+    ]
+  },
+  "events": [
+    {
+      "sequence": 0,
+      "kind": "tool",
+      "turn": 1,
+      "tool": "check_cars",
+      "arguments": {},
+      "result": {
+        "data": {
+          "cars": [
+            {
+              "id": "blue-suv",
+              "name": "Blue SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": true
+            },
+            {
+              "id": "red-suv",
+              "name": "Red SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": true
+            },
+            {
+              "id": "city-car",
+              "name": "City hatchback",
+              "features": [
+                "child_seat"
+              ],
+              "available": true
+            }
+          ],
+          "bookings": [
+            {
+              "id": "existing-1",
+              "request_id": "another-customer",
+              "car_id": "blue-suv",
+              "day": "2026-10-01"
+            }
+          ]
+        },
+        "error": null,
+        "fault": "car_unavailable"
+      },
+      "text": null,
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 1,
+      "kind": "tool",
+      "turn": 2,
+      "tool": "book_car",
+      "arguments": {
+        "request_id": "trip-1",
+        "car_id": "blue-suv",
+        "day": "2026-10-06",
+        "idempotency_key": "trip-1-blue-suv-2026-10-06"
+      },
+      "result": {
+        "data": {},
+        "error": "car_unavailable",
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "tool",
+      "turn": 3,
+      "tool": "check_cars",
+      "arguments": {},
+      "result": {
+        "data": {
+          "cars": [
+            {
+              "id": "blue-suv",
+              "name": "Blue SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": false
+            },
+            {
+              "id": "red-suv",
+              "name": "Red SUV",
+              "features": [
+                "child_seat",
+                "large_boot"
+              ],
+              "available": true
+            },
+            {
+              "id": "city-car",
+              "name": "City hatchback",
+              "features": [
+                "child_seat"
+              ],
+              "available": true
+            }
+          ],
+          "bookings": [
+            {
+              "id": "existing-1",
+              "request_id": "another-customer",
+              "car_id": "blue-suv",
+              "day": "2026-10-01"
+            }
+          ]
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 3,
+      "kind": "tool",
+      "turn": 4,
+      "tool": "book_car",
+      "arguments": {
+        "request_id": "trip-1",
+        "car_id": "red-suv",
+        "day": "2026-10-06",
+        "idempotency_key": "trip-1-red-suv-2026-10-06"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "red-suv",
+            "day": "2026-10-06"
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "red-suv",
+            "day": "2026-10-06"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 4,
+      "kind": "message",
+      "turn": 5,
+      "tool": null,
+      "arguments": null,
+      "result": null,
+      "text": "Scheduling complete. Check the recorded environment for the outcome.",
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": false
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "red-suv",
+            "day": "2026-10-06"
+          }
+        ]
+      }
+    }
+  ]
+}

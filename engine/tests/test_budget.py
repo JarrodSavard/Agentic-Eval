@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 import pytest
-from observatory.budget import Budget, BudgetExceeded, Pricing
+from roadtest.budget import Budget, BudgetExceeded, Pricing
 
 
 def rates():

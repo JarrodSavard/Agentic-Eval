@@ -4,13 +4,13 @@ from decimal import Decimal
 import httpx
 import pytest
 from anthropic import Anthropic
-from observatory.budget import Budget
-from observatory.contracts import ExperimentConfig, ToolResult
-from observatory.providers import create_agent
-from observatory.providers.registry import ModelProfile
-from observatory.runner import run_trial
-from observatory.scenarios import catalog
 from openai import OpenAI
+from roadtest.budget import Budget
+from roadtest.contracts import ExperimentConfig, ToolResult
+from roadtest.providers import create_agent
+from roadtest.providers.registry import ModelProfile
+from roadtest.runner import run_trial
+from roadtest.scenarios import catalog
 
 
 def profile(provider):
@@ -40,7 +40,7 @@ def provider_response(provider, *, tools=True, truncated=False, usage=True):
                     "type": "function_call",
                     "id": "fc_1",
                     "call_id": "call_1",
-                    "name": "inspect_observatory",
+                    "name": "check_cars",
                     "arguments": "{}",
                     "status": "completed",
                 }
@@ -62,9 +62,7 @@ def provider_response(provider, *, tools=True, truncated=False, usage=True):
         "type": "message",
         "role": "assistant",
         "model": "test-model",
-        "content": [
-            {"type": "tool_use", "id": "call_1", "name": "inspect_observatory", "input": {}}
-        ]
+        "content": [{"type": "tool_use", "id": "call_1", "name": "check_cars", "input": {}}]
         if tools
         else [{"type": "text", "text": "Done"}],
         "stop_reason": "max_tokens" if truncated else ("tool_use" if tools else "end_turn"),
@@ -99,7 +97,7 @@ def test_adapter_counts_exact_conversation_and_roundtrips_tool_results(provider)
     agent = adapter(provider, handler)
     assert agent.count_input() == 100
     turn = agent.next(512)
-    assert turn.calls[0].name == "inspect_observatory"
+    assert turn.calls[0].name == "check_cars"
     assert turn.usage.input_tokens == 100
     agent.observe(turn.calls[0], ToolResult(error="temporary_unavailable", fault="transient_read"))
     assert agent.count_input() == 100

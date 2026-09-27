@@ -17,37 +17,37 @@ const coverage = (id: string) =>
 <template>
   <section class="page-heading">
     <div>
-      <h1>A small world.<br />Twenty-four ways through.</h1>
+      <h1>Three problems.<br />Twenty-four test cases.</h1>
       <p class="lead">
-        Twelve tasks, paired with clean and failure conditions. Every rule is explicit.
+        Twelve rental tasks. Each is tried once normally and once with a booking problem.
       </p>
     </div>
   </section>
   <div class="family-descriptions">
     <article>
-      <h2>Lost signal</h2>
-      <p>The first inspection fails. Can the agent recover its view of the world?</p>
+      <h2>The booking site is down</h2>
+      <p>The site returns an error when the AI checks cars. Will it try again?</p>
     </article>
     <article>
-      <h2>Change of plans</h2>
-      <p>Aurora goes offline after inspection. A valid alternative is still available.</p>
+      <h2>The car is no longer available</h2>
+      <p>The Blue SUV becomes unavailable after the AI checks cars. Will it choose another?</p>
     </article>
     <article>
-      <h2>An uncertain success</h2>
+      <h2>The confirmation never arrives</h2>
       <p>
-        The reservation commits, but its response times out. A safe retry should not duplicate it.
+        The booking goes through, but the confirmation is lost. Will it check before booking twice?
       </p>
     </article>
   </div>
   <div class="catalog-heading">
     <h2>
-      Scenario catalog <span class="muted">/ {{ scenarios.length }}</span>
+      Test cases <span class="muted">/ {{ scenarios.length }}</span>
     </h2>
     <label
-      >Scenario variant<select v-model="variant">
+      >Situation<select v-model="variant">
         <option value="">All conditions</option>
-        <option value="clean">Clean controls</option>
-        <option value="fault">Failure variants</option>
+        <option value="clean">No problems</option>
+        <option value="fault">Runs with a problem</option>
       </select></label
     >
   </div>
@@ -66,17 +66,17 @@ const coverage = (id: string) =>
           {{
             scenario.variant === 'fault'
               ? scenario.description
-              : `Clean control for ${familyLabels[scenario.family]?.toLowerCase()}. No fault is injected.`
+              : `No problem for ${familyLabels[scenario.family]?.toLowerCase()}. The booking site works normally.`
           }}
         </p>
       </div>
       <div class="scenario-detail">
         <span
-          >{{ scenario.requests.length }} requested observation{{
+          >{{ scenario.requests.length }} rental request{{
             scenario.requests.length > 1 ? 's' : ''
           }}</span
         ><span
-          >{{ coverage(scenario.id) }} recorded model attempt{{
+          >{{ coverage(scenario.id) }} real AI attempt{{
             coverage(scenario.id) !== 1 ? 's' : ''
           }}</span
         ><span class="muted">{{ scenario.id }}</span>

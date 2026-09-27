@@ -27,35 +27,34 @@ const liveCount = computed(
 <template>
   <section class="intro">
     <div class="intro-copy">
-      <h1>When the<br />plan breaks.</h1>
+      <h1>Can AI book<br />the right car?</h1>
       <p class="lead">
-        An agent’s answer is only part of the story. See what it actually does when a tool fails, a
-        resource disappears, or success looks like a timeout.
+        Ask an AI to book a rental car. Then make the website fail, take a car out of service, or
+        lose the confirmation. Watch whether it still gets the customer a suitable car.
       </p>
       <div class="intro-actions">
-        <NuxtLink class="button" to="/compare">Explore the comparison <ArrowIcon /></NuxtLink
-        ><NuxtLink class="text-link" to="/replay">Open a replay <ArrowIcon /></NuxtLink>
+        <NuxtLink class="button" to="/compare">Compare the AIs <ArrowIcon /></NuxtLink
+        ><NuxtLink class="text-link" to="/replay">Watch a booking <ArrowIcon /></NuxtLink>
       </div>
       <p class="intro-note">
-        A small observatory. A controlled experiment.<br />
-        Every action available for inspection.
+        No real cars. No real bookings.<br />
+        Just a clear way to see how an AI handles a problem.
       </p>
     </div>
     <div class="intro-evidence">
       <div class="evidence-title">
         <span class="status-dot"></span
-        ><span>{{
-          example?.source === 'live' ? 'Recorded model run' : 'Scripted demonstration'
-        }}</span
+        ><span>{{ example?.source === 'live' ? 'Real AI recording' : 'Scripted example' }}</span
         ><span class="badge">{{
-          scenario?.variant === 'fault' ? 'Fault injected' : 'Baseline'
+          scenario?.variant === 'fault' ? 'Problem introduced' : 'Baseline'
         }}</span>
       </div>
       <div class="evidence-body">
-        <h2>{{ scenario?.title.split(' / ')[0] || 'Change of plans' }}</h2>
+        <h2>{{ scenario?.title.split(' / ')[0] || 'The car is no longer available' }}</h2>
         <p>
           {{
-            scenario?.description || 'An instrument becomes unavailable. The task stays the same.'
+            scenario?.description ||
+            'The preferred car becomes unavailable. The customer still needs a ride.'
           }}
         </p>
         <StateBoard
@@ -63,59 +62,59 @@ const liveCount = computed(
           :state="example.final_state"
           :requests="scenario.requests"
         />
-        <div v-else class="loading-board">Loading the recorded observation board…</div>
+        <div v-else class="loading-board">Loading the car bookings…</div>
         <div class="evidence-outcome">
           <span class="outcome-mark">{{
-            example?.grade.success ? 'Task achieved' : 'Inspect the outcome'
+            example?.grade.success ? 'Booking completed' : 'Inspect the outcome'
           }}</span
-          ><span v-if="example">{{ example.tool_calls }} tool calls · full trace available</span>
+          ><span v-if="example">{{ example.tool_calls }} actions · watch every step</span>
         </div>
       </div>
       <NuxtLink
         class="evidence-link"
         :to="{ path: '/replay', query: example ? { trial: example.id } : {} }"
-        >Follow the recovery <ArrowIcon
+        >See what happened <ArrowIcon
       /></NuxtLink>
     </div>
   </section>
   <section class="experiment-strip" aria-label="Experiment scope">
-    <p><strong>24</strong> controlled scenarios</p>
-    <p><strong>3</strong> kinds of failure</p>
+    <p><strong>24</strong> test cases</p>
+    <p><strong>3</strong> everyday problems</p>
     <p>
-      <strong>{{ liveCount }}</strong> recorded model attempts
+      <strong>{{ liveCount }}</strong> real AI attempts
     </p>
     <p><strong>$0</strong> to explore this demo</p>
   </section>
   <section class="section split-section">
     <div>
       <h2>
-        A good outcome<br />
-        needs evidence.
+        Saying “booked”<br />
+        is not enough.
       </h2>
-      <p class="muted">The observatory is fictional. The engineering questions are familiar.</p>
+      <p class="muted">We check the booking itself, not just the AI’s final message.</p>
     </div>
     <div class="explanation-list">
       <article>
-        <h3>Same task. Different conditions.</h3>
+        <h3>Same trip. Different problems.</h3>
         <p>
-          Each task has a clean version and a failure version. Agents use the same tools and
-          constraints to find a valid schedule.
+          Each AI gets the same customer request twice: once when everything works, and once when
+          something goes wrong.
         </p>
       </article>
       <article>
-        <h3>Check the world, not the claim.</h3>
+        <h3>Did the customer get the right car?</h3>
         <p>
-          The grader examines actual reservations: correct instruments, valid windows, preserved
-          bookings, and no duplicates.
+          A separate checker looks for the right car features, an allowed date, no double bookings,
+          and no changes to another customer’s booking.
         </p>
       </article>
       <article>
-        <h3>Keep the sample in perspective.</h3>
+        <h3>An example, not a winner.</h3>
         <p>
-          Scripted policies demonstrate the harness. A few real model attempts illustrate behavior;
-          they do not establish a winner.
+          These short runs show what happened in this example. They do not prove that one AI is
+          always better.
         </p>
-        <NuxtLink class="text-link" to="/methodology">Read the methodology <ArrowIcon /></NuxtLink>
+        <NuxtLink class="text-link" to="/methodology">How the test works <ArrowIcon /></NuxtLink>
       </article>
     </div>
   </section>

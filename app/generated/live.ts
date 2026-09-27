@@ -15,27 +15,27 @@ export type Reason = string | null;
 export type Profiles = LiveProfile[];
 export type Id1 = string;
 export type BaseId = string;
-export type Version = "1.0";
+export type Version = "2.0";
 export type Title = string;
 export type Description = string;
-export type Family =
-  "transient_read" | "instrument_unavailable" | "committed_timeout";
+export type Family = "transient_read" | "car_unavailable" | "committed_timeout";
 export type Variant = "clean" | "fault";
 export type Id2 = string;
-export type Target = string;
-export type Band = string;
-export type AllowedSlots = number[];
-export type Requests = ObservationRequest[];
+export type Customer = string;
+export type Trip = string;
+export type RequiredFeature = string;
+export type AllowedDays = string[];
+export type Requests = RentalRequest[];
 export type Id3 = string;
 export type Name = string;
-export type Bands = string[];
+export type Features = string[];
 export type Available = boolean;
-export type Instruments = Instrument[];
+export type Cars = Car[];
 export type Id4 = string;
 export type RequestId = string;
-export type InstrumentId = string;
-export type Slot = number;
-export type Reservations = Reservation[];
+export type CarId = string;
+export type Day = string;
+export type Bookings = Booking[];
 export type Scenarios = Scenario[];
 export type RunId = string;
 export type Status = "running" | "completed" | "failed";
@@ -50,14 +50,14 @@ export type Arguments = {
 } | null;
 export type Error = string | null;
 export type Fault =
-  ("transient_read" | "instrument_unavailable" | "committed_timeout") | null;
+  ("transient_read" | "car_unavailable" | "committed_timeout") | null;
 export type Text = string | null;
 export type Events = TraceEvent[];
-export type SchemaVersion = "1.0";
+export type SchemaVersion = "2.0";
 export type ExperimentId = string;
 export type CreatedAt = string;
 export type CodeRevision = string;
-export type PromptVersion = "1.0";
+export type PromptVersion = "2.0";
 export type BudgetUsd = number;
 export type MaxTurns = number;
 export type MaxToolCalls = number;
@@ -139,29 +139,30 @@ export interface Scenario {
   family: Family;
   variant: Variant;
   requests: Requests;
-  initial_state: ObservatoryState;
+  initial_state: RentalState;
 }
-export interface ObservationRequest {
+export interface RentalRequest {
   id: Id2;
-  target: Target;
-  band: Band;
-  allowed_slots: AllowedSlots;
+  customer: Customer;
+  trip: Trip;
+  required_feature: RequiredFeature;
+  allowed_days: AllowedDays;
 }
-export interface ObservatoryState {
-  instruments: Instruments;
-  reservations: Reservations;
+export interface RentalState {
+  cars: Cars;
+  bookings: Bookings;
 }
-export interface Instrument {
+export interface Car {
   id: Id3;
   name: Name;
-  bands: Bands;
+  features: Features;
   available: Available;
 }
-export interface Reservation {
+export interface Booking {
   id: Id4;
   request_id: RequestId;
-  instrument_id: InstrumentId;
-  slot: Slot;
+  car_id: CarId;
+  day: Day;
 }
 export interface LiveSnapshot {
   run_id: RunId;
@@ -182,7 +183,7 @@ export interface TraceEvent {
   arguments: Arguments;
   result: ToolResult | null;
   text: Text;
-  state: ObservatoryState;
+  state: RentalState;
 }
 export interface ToolResult {
   data: Data;
@@ -230,7 +231,7 @@ export interface TrialResult {
   usage_complete: UsageComplete;
   settings: Settings;
   grade: Grade;
-  final_state: ObservatoryState;
+  final_state: RentalState;
   events: Events1;
 }
 export interface Usage {

@@ -4,13 +4,13 @@ import { readFileSync } from 'node:fs'
 const fixture = JSON.parse(readFileSync('artifacts/test-data/bundle.json', 'utf8'))
 const pair = fixture.trials.filter(
   (t: { model: string; scenario_id: string }) =>
-    t.model === 'scripted-recovery-v1' && t.scenario_id.startsWith('instrument_unavailable-01'),
+    t.model === 'scripted-recovery-v1' && t.scenario_id.startsWith('car_unavailable-01'),
 )
 
 test('live screen explains local setup when no runner is available', async ({ page }) => {
   await page.route('**/api/live/bootstrap', (route) => route.fulfill({ status: 404, body: '{}' }))
   await page.goto('./live')
-  await expect(page.getByRole('heading', { name: 'Watch a model work.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Let an AI book a car.' })).toBeVisible()
   await expect(page.getByText('pnpm live', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Start live experiment' })).toHaveCount(0)
 })
@@ -51,7 +51,7 @@ test('live screen shows incoming actions then opens completed evidence without a
       }
     else if (route.request().method() === 'POST') {
       starts++
-      expect(route.request().headers()['x-observatory-token']).toBe('test-token')
+      expect(route.request().headers()['x-roadtest-token']).toBe('test-token')
       phase = 1
       data = snapshot()
     } else data = snapshot()
@@ -59,8 +59,8 @@ test('live screen shows incoming actions then opens completed evidence without a
   })
   await page.goto('./live')
   await page.getByRole('button', { name: 'Start live experiment' }).click()
-  await expect(page.getByRole('heading', { name: 'Checked the schedule' })).toBeVisible()
-  await expect(page.getByText('Fault injected', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'The AI checks available cars' })).toBeVisible()
+  await expect(page.getByText('Problem introduced', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Stop experiment' })).toBeEnabled()
   phase = 2
   await expect(page.getByRole('button', { name: 'Open results in comparison' })).toBeEnabled()
