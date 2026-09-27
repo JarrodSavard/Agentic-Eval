@@ -1,6 +1,6 @@
 {
-  "id": "transient_read-01-clean--gpt-6-luna--1",
-  "scenario_id": "transient_read-01-clean",
+  "id": "competing_requests-01-clean--gpt-6-luna--1",
+  "scenario_id": "competing_requests-01-clean",
   "agent": "OpenAI / GPT-6 Luna",
   "provider": "openai",
   "model": "gpt-6-luna",
@@ -8,15 +8,15 @@
   "source": "live",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-27T20:53:23.551025+00:00",
-  "latency_ms": 7824.509,
-  "tool_calls": 3,
+  "started_at": "2026-09-27T20:55:15.548438+00:00",
+  "latency_ms": 6502.379,
+  "tool_calls": 4,
   "invalid_actions": 0,
   "usage": {
-    "input_tokens": 3702,
-    "output_tokens": 140
+    "input_tokens": 5113,
+    "output_tokens": 241
   },
-  "estimated_cost_usd": 0.0004402,
+  "estimated_cost_usd": 0.0006318,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
@@ -31,8 +31,8 @@
   },
   "grade": {
     "success": true,
-    "completed_requests": 1,
-    "total_requests": 1,
+    "completed_requests": 2,
+    "total_requests": 2,
     "violations": []
   },
   "final_state": {
@@ -75,6 +75,12 @@
         "id": "reservation-1",
         "request_id": "trip-1",
         "car_id": "city-car",
+        "day": "2026-10-03"
+      },
+      {
+        "id": "reservation-2",
+        "request_id": "trip-2",
+        "car_id": "blue-suv",
         "day": "2026-10-03"
       }
     ]
@@ -177,7 +183,7 @@
         "request_id": "trip-1",
         "car_id": "city-car",
         "day": "2026-10-03",
-        "idempotency_key": "trip-1-city-car-2026-10-03"
+        "idempotency_key": "trip-1-2026-10-03-city-car"
       },
       "result": {
         "data": {
@@ -242,12 +248,93 @@
       "sequence": 2,
       "kind": "tool",
       "turn": 3,
+      "tool": "book_car",
+      "arguments": {
+        "request_id": "trip-2",
+        "car_id": "blue-suv",
+        "day": "2026-10-03",
+        "idempotency_key": "trip-2-2026-10-03-blue-suv"
+      },
+      "result": {
+        "data": {
+          "reservation": {
+            "id": "reservation-2",
+            "request_id": "trip-2",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
+          },
+          "idempotent_replay": false
+        },
+        "error": null,
+        "fault": null
+      },
+      "text": null,
+      "state": {
+        "cars": [
+          {
+            "id": "blue-suv",
+            "name": "Blue SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "red-suv",
+            "name": "Red SUV",
+            "features": [
+              "child_seat",
+              "large_boot"
+            ],
+            "available": true
+          },
+          {
+            "id": "city-car",
+            "name": "City hatchback",
+            "features": [
+              "child_seat"
+            ],
+            "available": true
+          }
+        ],
+        "bookings": [
+          {
+            "id": "existing-1",
+            "request_id": "another-customer",
+            "car_id": "blue-suv",
+            "day": "2026-10-01"
+          },
+          {
+            "id": "reservation-1",
+            "request_id": "trip-1",
+            "car_id": "city-car",
+            "day": "2026-10-03"
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "trip-2",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 3,
+      "kind": "tool",
+      "turn": 4,
       "tool": "report_result",
       "arguments": {
         "bookings": [
           {
             "request_id": "trip-1",
             "car_id": "city-car",
+            "day": "2026-10-03"
+          },
+          {
+            "request_id": "trip-2",
+            "car_id": "blue-suv",
             "day": "2026-10-03"
           }
         ],
@@ -260,6 +347,11 @@
               {
                 "request_id": "trip-1",
                 "car_id": "city-car",
+                "day": "2026-10-03"
+              },
+              {
+                "request_id": "trip-2",
+                "car_id": "blue-suv",
                 "day": "2026-10-03"
               }
             ],
@@ -311,18 +403,24 @@
             "request_id": "trip-1",
             "car_id": "city-car",
             "day": "2026-10-03"
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "trip-2",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
           }
         ]
       }
     },
     {
-      "sequence": 3,
+      "sequence": 4,
       "kind": "message",
-      "turn": 4,
+      "turn": 5,
       "tool": null,
       "arguments": null,
       "result": null,
-      "text": "Booked a city hatchback with a child seat for Alex on October 3, 2026.",
+      "text": "Booked both rentals for October 3, 2026: Alex has the City hatchback with a child seat, and Sam has the Blue SUV with large luggage space. Other customers’ bookings were left unchanged.",
       "state": {
         "cars": [
           {
@@ -364,6 +462,12 @@
             "request_id": "trip-1",
             "car_id": "city-car",
             "day": "2026-10-03"
+          },
+          {
+            "id": "reservation-2",
+            "request_id": "trip-2",
+            "car_id": "blue-suv",
+            "day": "2026-10-03"
           }
         ]
       }
@@ -377,9 +481,9 @@
         "category": "Outcome",
         "title": "The right result",
         "verdict": "pass",
-        "detail": "1 of 1 requested rentals were booked correctly.",
+        "detail": "2 of 2 requested rentals were booked correctly.",
         "evidence_sequences": [
-          3
+          4
         ]
       },
       {
@@ -431,7 +535,7 @@
         "verdict": "pass",
         "detail": "The final receipt matches the saved bookings and any unavailable trips. This does not grade the wording of the final message.",
         "evidence_sequences": [
-          2
+          3
         ]
       },
       {
@@ -439,7 +543,7 @@
         "category": "Efficiency",
         "title": "Stayed within the execution limits",
         "verdict": "pass",
-        "detail": "4 model turns and 3 tool calls. Time, tokens and estimated cost are reported separately; fewer calls alone do not prove a better solution.",
+        "detail": "5 model turns and 4 tool calls. Time, tokens and estimated cost are reported separately; fewer calls alone do not prove a better solution.",
         "evidence_sequences": []
       }
     ],
@@ -458,9 +562,14 @@
         "sequence": 2,
         "verdict": "accepted",
         "detail": "The tool accepted this request. Acceptance alone does not prove the whole task succeeded."
+      },
+      {
+        "sequence": 3,
+        "verdict": "accepted",
+        "detail": "The tool accepted this request. Acceptance alone does not prove the whole task succeeded."
       }
     ],
-    "turns": 4,
+    "turns": 5,
     "repeated_reads": 0,
     "safe_retries": 0
   }

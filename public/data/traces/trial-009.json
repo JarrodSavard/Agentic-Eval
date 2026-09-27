@@ -1,31 +1,31 @@
 {
-  "id": "transient_read-01-clean--gpt-6-luna--1",
-  "scenario_id": "transient_read-01-clean",
-  "agent": "OpenAI / GPT-6 Luna",
+  "id": "committed_timeout-01-clean--gpt-5.6-luna--1",
+  "scenario_id": "committed_timeout-01-clean",
+  "agent": "OpenAI / GPT-5.6 Luna",
   "provider": "openai",
-  "model": "gpt-6-luna",
-  "returned_model": "gpt-6-luna",
+  "model": "gpt-5.6-luna",
+  "returned_model": "gpt-5.6-luna",
   "source": "live",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-27T20:53:23.551025+00:00",
-  "latency_ms": 7824.509,
+  "started_at": "2026-09-27T20:54:18.123307+00:00",
+  "latency_ms": 4768.932,
   "tool_calls": 3,
   "invalid_actions": 0,
   "usage": {
     "input_tokens": 3702,
-    "output_tokens": 140
+    "output_tokens": 155
   },
-  "estimated_cost_usd": 0.0004402,
+  "estimated_cost_usd": 0.0009264,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
-    "id": "openai-luna",
-    "label": "OpenAI / GPT-6 Luna",
+    "id": "openai-5.6-luna",
+    "label": "OpenAI / GPT-5.6 Luna",
     "provider": "openai",
-    "model": "gpt-6-luna",
-    "input_per_million": "0.10",
-    "output_per_million": "0.50",
+    "model": "gpt-5.6-luna",
+    "input_per_million": "0.20",
+    "output_per_million": "1.20",
     "price_checked_at": "2026-09-27",
     "reasoning": "none"
   },
@@ -177,7 +177,7 @@
         "request_id": "trip-1",
         "car_id": "city-car",
         "day": "2026-10-03",
-        "idempotency_key": "trip-1-city-car-2026-10-03"
+        "idempotency_key": "trip-1-2026-10-03-city-car"
       },
       "result": {
         "data": {
@@ -322,7 +322,7 @@
       "tool": null,
       "arguments": null,
       "result": null,
-      "text": "Booked a city hatchback with a child seat for Alex on October 3, 2026.",
+      "text": "Booked Alex’s rental:\n\n- **Trip:** trip-1\n- **Car:** City hatchback with child seat\n- **Date:** October 3, 2026",
       "state": {
         "cars": [
           {

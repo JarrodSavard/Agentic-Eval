@@ -1,0 +1,8 @@
+{
+  "experiment_id": "live-showcase-663232b09944",
+  "original_bundle_sha256": "6cc2b880c45171f5a119612da1dd787df99efb50fb0f9f09c3005d2397c3139e",
+  "published_bundle_sha256": "0f13b15a931b8513f84a2a10aa71bc0eabff9a1fbee0f056f15f849f8b8aee52",
+  "original_code_revision": "uncommitted",
+  "verified_code_revision": "b5b9f0c4b232e2532b7624911289a0c7a3a6f051",
+  "reason": "Git refused automatic revision lookup because the Windows checkout and runner had different owners. The clean implementation commit was recorded immediately before the run. HEAD and unchanged engine/configuration were checked after the run. Only code_revision was corrected; all trials, model text, grades, usage and timestamps are unchanged. The original recording is preserved locally."
+}

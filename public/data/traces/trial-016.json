@@ -1,6 +1,6 @@
 {
-  "id": "transient_read-01-clean--gpt-6-luna--1",
-  "scenario_id": "transient_read-01-clean",
+  "id": "no_matching_car-01-clean--gpt-6-luna--1",
+  "scenario_id": "no_matching_car-01-clean",
   "agent": "OpenAI / GPT-6 Luna",
   "provider": "openai",
   "model": "gpt-6-luna",
@@ -8,15 +8,15 @@
   "source": "live",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-27T20:53:23.551025+00:00",
-  "latency_ms": 7824.509,
+  "started_at": "2026-09-27T20:54:57.412009+00:00",
+  "latency_ms": 5202.286,
   "tool_calls": 3,
   "invalid_actions": 0,
   "usage": {
     "input_tokens": 3702,
-    "output_tokens": 140
+    "output_tokens": 142
   },
-  "estimated_cost_usd": 0.0004402,
+  "estimated_cost_usd": 0.0004412,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
@@ -322,7 +322,7 @@
       "tool": null,
       "arguments": null,
       "result": null,
-      "text": "Booked a city hatchback with a child seat for Alex on October 3, 2026.",
+      "text": "Booked a City hatchback with a child seat for trip-1 on October 3, 2026.",
       "state": {
         "cars": [
           {

@@ -21,7 +21,9 @@
         <p>
           Each customer must get one suitable car on an allowed date. Other bookings must stay
           unchanged, and no car can be booked twice on the same day. A different suitable car can
-          still be correct. A safe retry can confirm a booking without making another one.
+          still be correct. When no suitable car is available, the correct result is to leave the
+          bookings unchanged and report that clearly. A safe retry can confirm a booking without
+          making another one.
         </p>
         <p>
           The booking site can reject a bad request. We show that rejection separately from the

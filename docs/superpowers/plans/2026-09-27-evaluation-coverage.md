@@ -64,7 +64,7 @@ Files: docs, fixtures, public recordings, quality workflow as needed.
 
 - [x] Verify all reference cases, known-bad behavior, reproducible fixtures, schema drift, and public evidence.
 - [x] Obtain a fresh code review and fix material issues with regression tests.
-- [ ] Commit tested implementation, then run one predetermined $0.50 showcase using both configured Luna profiles, all six first task pairs, once each; preserve every attempt.
+- [x] Commit tested implementation, then run one predetermined $0.50 showcase using both configured Luna profiles, all six first task pairs, once each; preserve every attempt.
 - [ ] Publish recordings, rerun affected validation, commit, push, confirm CI/Pages and refresh the local app.
 
 ## Execution notes
@@ -77,3 +77,5 @@ Files: docs, fixtures, public recordings, quality workflow as needed.
 - Fresh review found and regression tests fixed malformed receipts, missing-receipt handling, unknown model identities in repeated-run summaries and baseline comparisons, and imported-evidence provenance notices.
 - Inspected evaluation and replay reports at desktop/mobile sizes. Kept the established palette and typography; refreshed stale design sidecar references without changing DESIGN.md. Existing design-token literal warnings reflect the incomplete older token inventory and were checked in context.
 - Confirmed both configured Luna prices against official documentation on September 27, 2026 before the new paid showcase.
+- Ran experiment `live-showcase-663232b09944` once at implementation commit `b5b9f0c4b232e2532b7624911289a0c7a3a6f051`: all 24 attempts completed, 23 successful final outcomes, estimated cost $0.0184195 under the shared $0.50 cap. Published all attempts, including GPT-5.6 Luna's failed scarce-car allocation. Coverage is 12/48 scenarios with one attempt per model/case; repeated-run estimates remain unavailable.
+- Verified every recorded tool transition, final grade and assessment. Windows Git ownership prevented automatic revision lookup; corrected only that metadata after checking the clean pre-run commit and unchanged engine/configuration. Original bytes remain local; public provenance metadata records both hashes and the reason. No paid work was repeated.
