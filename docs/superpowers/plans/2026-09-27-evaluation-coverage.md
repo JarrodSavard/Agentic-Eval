@@ -65,7 +65,7 @@ Files: docs, fixtures, public recordings, quality workflow as needed.
 - [x] Verify all reference cases, known-bad behavior, reproducible fixtures, schema drift, and public evidence.
 - [x] Obtain a fresh code review and fix material issues with regression tests.
 - [x] Commit tested implementation, then run one predetermined $0.50 showcase using both configured Luna profiles, all six first task pairs, once each; preserve every attempt.
-- [ ] Publish recordings, rerun affected validation, commit, push, confirm CI/Pages and refresh the local app.
+- [x] Publish recordings, rerun affected validation, commit, push, confirm CI/Pages and refresh the local app.
 
 ## Execution notes
 
@@ -79,3 +79,6 @@ Files: docs, fixtures, public recordings, quality workflow as needed.
 - Confirmed both configured Luna prices against official documentation on September 27, 2026 before the new paid showcase.
 - Ran experiment `live-showcase-663232b09944` once at implementation commit `b5b9f0c4b232e2532b7624911289a0c7a3a6f051`: all 24 attempts completed, 23 successful final outcomes, estimated cost $0.0184195 under the shared $0.50 cap. Published all attempts, including GPT-5.6 Luna's failed scarce-car allocation. Coverage is 12/48 scenarios with one attempt per model/case; repeated-run estimates remain unavailable.
 - Verified every recorded tool transition, final grade and assessment. Windows Git ownership prevented automatic revision lookup; corrected only that metadata after checking the clean pre-run commit and unchanged engine/configuration. Original bytes remain local; public provenance metadata records both hashes and the reason. No paid work was repeated.
+- Release commit `9d0fbee` passed [the complete quality and Pages workflow](https://github.com/JarrodSavard/Agentic-Eval/actions/runs/36349968008). All 185 tests passed (140 Python, 21 Vitest, 24 Playwright), including all 48 scripted reference cases. Compressed client JavaScript is 107.7 KB against the 250 KB budget.
+- Refreshed the loopback app on port 8765; both Luna models are ready and 48 cases are available. Desktop/mobile smoke checks against both the local app and deployed Pages verified 24 real attempts, 12/48 coverage, the failed competing-bookings outcome, its accurate receipt, evidence navigation, and no page errors or horizontal overflow.
+- Publication audit hashes distinguish unchanged original Windows bytes from the Git-normalized UTF-8/LF public artifact. The process-local Git trust setting is scoped to this checkout for future local run revision capture; no global Git configuration was changed.
