@@ -59,7 +59,7 @@ test('live screen shows incoming actions then opens completed evidence without a
   })
   await page.goto('./live')
   await page.getByRole('button', { name: 'Start live experiment' }).click()
-  await expect(page.getByText('inspect observatory', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Checked the schedule' })).toBeVisible()
   await expect(page.getByText('Fault injected', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Stop experiment' })).toBeEnabled()
   phase = 2

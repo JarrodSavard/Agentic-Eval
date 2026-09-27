@@ -46,6 +46,33 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
         : 'Scripted demonstration — these are deterministic policies, not Claude or OpenAI results.'
     }}
   </div>
+  <section class="comparison-guide" aria-label="How to read this comparison">
+    <h2>Did it finish the job when something went wrong?</h2>
+    <p>
+      Compare the same task under <strong>Clean control</strong> (nothing deliberately breaks) and
+      <strong>Failure injected</strong> (the environment changes). A successful model leaves valid
+      bookings, even if an earlier action was rejected.
+    </p>
+    <p v-if="models.length === 1">
+      This recording contains one model. To compare GPT-6 Luna with GPT-5.6 Luna,
+      <NuxtLink to="/live">open the local live lab</NuxtLink>, select both models, and run the same
+      task.
+    </p>
+    <dl>
+      <div>
+        <dt>Outcome</dt>
+        <dd>Checked from actual bookings, not the model�s claim.</dd>
+      </div>
+      <div>
+        <dt>Calls / invalid</dt>
+        <dd>Tool actions / rejected attempts. A rejection is not necessarily a failed task.</dd>
+      </div>
+      <div>
+        <dt>Latency &amp; tokens</dt>
+        <dd>Elapsed time and text processed. These describe effort, not correctness.</dd>
+      </div>
+    </dl>
+  </section>
   <div class="filters">
     <label
       >Failure family<select v-model="family">
@@ -147,7 +174,7 @@ const scenario = (id: string) => evaluation.data.value?.scenarios.find((s) => s.
               :to="{ path: '/replay', query: { trial: trial.id } }"
               class="replay-link"
               aria-label="Replay trial"
-              ><ArrowIcon
+              >Watch steps <ArrowIcon
             /></NuxtLink>
           </td>
         </tr>

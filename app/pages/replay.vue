@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { explainEvent } from '~/utils/story'
 import { featuredTrial } from '~/utils/results'
 import type { TrialResult } from '~/generated/evaluation'
 import { outcome, provenanceLabel, returnedModelLabel, money } from '~/utils/results'
@@ -88,6 +89,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
         >{{ outcome(recording) }}</span
       ><span>{{ money(recording.estimated_cost_usd) }} estimated</span>
     </div>
+    <TaskBrief :scenario="scenario" />
     <div class="replay-layout">
       <section class="trace-panel">
         <div class="panel-heading">
@@ -104,10 +106,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
             >
               <span class="event-number">{{ String(index + 1).padStart(2, '0') }}</span
               ><span
-                ><strong>{{
-                  entry.tool?.replaceAll('_', ' ') ||
-                  (entry.kind === 'message' ? 'Agent summary' : 'Run stopped')
-                }}</strong
+                ><strong>{{ explainEvent(entry).title }}</strong
                 ><small>{{
                   entry.result?.error?.replaceAll('_', ' ') ||
                   (entry.result?.fault
@@ -139,13 +138,17 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
             Fault: {{ event.result.fault.replaceAll('_', ' ') }}. This label is evaluator metadata
             and was not shown to the model.
           </p>
-          <template v-if="event?.kind === 'tool'"
-            ><h3>Arguments</h3>
-            <pre>{{ pretty(event.arguments) }}</pre>
-            <h3>Tool response</h3>
-            <pre>{{ pretty({ data: event.result?.data, error: event.result?.error }) }}</pre>
-          </template>
-          <p v-else class="agent-message">
+          <EventStory v-if="event" :event="event" />
+          <details v-if="event?.kind === 'tool'" class="technical-details">
+            <summary>Technical details</summary>
+            <template v-if="event?.kind === 'tool'"
+              ><h3>Arguments</h3>
+              <pre>{{ pretty(event.arguments) }}</pre>
+              <h3>Tool response</h3>
+              <pre>{{ pretty({ data: event.result?.data, error: event.result?.error }) }}</pre>
+            </template>
+          </details>
+          <p v-if="event?.kind !== 'tool'" class="agent-message">
             {{ event?.text || 'This attempt has no recorded events.' }}
           </p>
         </div>

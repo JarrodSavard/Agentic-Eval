@@ -103,3 +103,14 @@ test('navigation and replay are keyboard accessible without horizontal page over
   )
   expect(overflow).toBe(false)
 })
+
+test('replay explains the assignment and keeps technical evidence expandable', async ({ page }) => {
+  await page.goto('./replay')
+  await expect(page.getByRole('region', { name: 'The assignment' })).toContainText(
+    'Keep existing bookings',
+  )
+  await expect(page.locator('.event-story')).toContainText('model has not seen')
+  await expect(page.locator('.technical-details pre').first()).toBeHidden()
+  await page.getByText('Technical details', { exact: true }).click()
+  await expect(page.locator('.technical-details pre').first()).toBeVisible()
+})

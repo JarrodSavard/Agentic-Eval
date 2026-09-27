@@ -167,3 +167,23 @@ def test_failure_after_an_action_preserves_the_trial_and_terminal_checkpoint(set
     assert verify_bundle(EvaluationBundle.model_validate(result["bundle"])) == []
     assert '"status": "failed"' in (manager.output / f"{run_id}.progress.json").read_text()
     assert (manager.output / f"{run_id}.json").is_file()
+
+
+def test_both_luna_versions_can_run_the_same_pair(setup):
+    manager, client, headers = setup
+
+    def factory(scenario, profile):
+        agent = ScriptedAgent(scenario)
+        agent.model = profile.model
+        agent.name = profile.label
+        return agent
+
+    manager.factory = factory
+    selected = ["openai-luna", "openai-5.6-luna"]
+    response = client.post(
+        "/api/live/runs", json=request() | {"profile_ids": selected}, headers=headers
+    )
+    assert response.status_code == 201
+    result = completed(client, response.json()["run_id"])
+    assert len(result["bundle"]["trials"]) == 4
+    assert verify_bundle(EvaluationBundle.model_validate(result["bundle"])) == []

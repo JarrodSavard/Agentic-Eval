@@ -33,7 +33,7 @@ Open the local address shown by Nuxt. No API keys are required for the viewer, t
 
 ### Watch a model run live
 
-Copy `.env.example` to `.env` and configure the provider you want to use. For Luna, only `OPENAI_API_KEY` is needed; Claude stays unavailable until `ANTHROPIC_API_KEY` is present. Restart the local runner after changing keys.
+Copy `.env.example` to `.env` and configure the provider you want to use. For GPT-6 Luna and GPT-5.6 Luna, only `OPENAI_API_KEY` is needed; Claude stays unavailable until `ANTHROPIC_API_KEY` is present. Restart the local runner after changing keys.
 
 ```sh
 pnpm live
@@ -137,3 +137,11 @@ The schema, generated TypeScript, and standalone browser validator are checked i
 **Copyright © 2026 Jarrod Savard. All rights reserved.**
 
 This repository is publicly available for portfolio review. It is not released under a permissive open-source license. See [LICENSE](LICENSE) for the complete notice. GitHub's applicable platform rights and third-party licenses remain in effect. See [third-party notices](docs/third-party-notices.md).
+
+### Compare Luna generations
+
+In the local **Live** page, select **OpenAI / GPT-6 Luna** and **OpenAI / GPT-5.6 Luna**, choose one task, and start the experiment. Each model attempts the clean and failure conditions, producing four trials under one shared budget. Use **Open results in comparison** when finished. The existing public recordings remain the original GPT-6 Luna pair until you publish a new experiment.
+
+The assignment and step explanations describe observed actions and environment changes. Expand **Technical details** for the exact tool request and response. They do not claim to expose private model reasoning.
+
+GPT-5.6 Luna pricing and support for reasoning disabled were checked against the [official model documentation](https://developers.openai.com/api/docs/models/gpt-5.6-luna) on September 27, 2026.

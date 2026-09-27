@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { explainEvent } from '~/utils/story'
 import { money, outcome } from '~/utils/results'
 const live = useLive()
 const evaluation = useEvaluation()
@@ -18,6 +19,9 @@ const scenario = computed(
     (run.value?.bundle.scenarios || live.bootstrap.value?.scenarios || []).find(
       (s) => s.id === run.value?.active_scenario_id,
     ) || tasks.value.find((s) => s.base_id === baseId.value),
+)
+const briefScenario = computed(() =>
+  running.value ? scenario.value : tasks.value.find((s) => s.base_id === baseId.value),
 )
 const event = computed(() => run.value?.events[position.value])
 const state = computed(() => event.value?.state || scenario.value?.initial_state)
@@ -105,6 +109,11 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
       <span class="status-dot"></span>Local live execution · Each model attempts a clean control and
       the same task with an injected failure.
     </div>
+    <TaskBrief v-if="briefScenario" :scenario="briefScenario" />
+    <p class="table-note">
+      Select both Luna versions to compare them: each gets the same assignment, tools and limits.
+      Two models create four trials: two normal runs and two with a deliberate failure.
+    </p>
     <form class="live-form" @submit.prevent="start">
       <fieldset :disabled="running || live.submitting.value">
         <legend>Models</legend>
@@ -235,10 +244,7 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
               >
                 <span class="event-number">{{ index + 1 }}</span
                 ><span
-                  ><strong>{{
-                    entry.tool?.replaceAll('_', ' ') ||
-                    (entry.kind === 'stopped' ? 'Run stopped' : 'Model message')
-                  }}</strong
+                  ><strong>{{ explainEvent(entry).title }}</strong
                   ><small>{{
                     entry.result?.fault
                       ? 'Fault injected'
@@ -260,13 +266,19 @@ const pretty = (value: unknown) => JSON.stringify(value, null, 2)
               Injected failure: {{ event.result.fault.replaceAll('_', ' ') }}. The model must
               respond using the tools it has.
             </p>
-            <template v-if="event?.kind === 'tool'"
-              ><h3>Requested action</h3>
-              <pre>{{ pretty(event.arguments) }}</pre>
-              <h3>Tool response</h3>
-              <pre>{{ pretty({ data: event.result?.data, error: event.result?.error }) }}</pre>
-            </template>
-            <p v-else class="agent-message">{{ event?.text || scenario.description }}</p>
+            <EventStory v-if="event" :event="event" />
+            <details v-if="event?.kind === 'tool'" class="technical-details">
+              <summary>Technical details</summary>
+              <template v-if="event?.kind === 'tool'"
+                ><h3>Requested action</h3>
+                <pre>{{ pretty(event.arguments) }}</pre>
+                <h3>Tool response</h3>
+                <pre>{{ pretty({ data: event.result?.data, error: event.result?.error }) }}</pre>
+              </template>
+            </details>
+            <p v-if="event?.kind !== 'tool'" class="agent-message">
+              {{ event?.text || scenario.description }}
+            </p>
           </div>
         </section>
       </div>
