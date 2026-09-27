@@ -1,26 +1,33 @@
 {
-  "id": "transient_read-01-clean--scripted-recovery-v1--1",
-  "scenario_id": "transient_read-01-clean",
-  "agent": "Recovery reference",
-  "provider": "scripted",
-  "model": "scripted-recovery-v1",
-  "returned_model": null,
-  "source": "scripted",
+  "id": "instrument_unavailable-01-clean--gpt-6-luna--1",
+  "scenario_id": "instrument_unavailable-01-clean",
+  "agent": "OpenAI / GPT-6 Luna",
+  "provider": "openai",
+  "model": "gpt-6-luna",
+  "returned_model": "gpt-6-luna",
+  "source": "live",
   "repetition": 1,
   "status": "completed",
-  "started_at": "2026-09-26T00:00:00+00:00",
-  "latency_ms": 0.0,
+  "started_at": "2026-09-27T19:06:58.774229+00:00",
+  "latency_ms": 7138.079,
   "tool_calls": 2,
   "invalid_actions": 0,
   "usage": {
-    "input_tokens": 0,
-    "output_tokens": 0
+    "input_tokens": 1666,
+    "output_tokens": 95
   },
-  "estimated_cost_usd": 0.0,
+  "estimated_cost_usd": 0.0002141,
   "reserved_cost_usd": 0.0,
   "usage_complete": true,
   "settings": {
-    "policy": "scripted-recovery-v1"
+    "id": "openai-luna",
+    "label": "OpenAI / GPT-6 Luna",
+    "provider": "openai",
+    "model": "gpt-6-luna",
+    "input_per_million": "0.10",
+    "output_per_million": "0.50",
+    "price_checked_at": "2026-09-26",
+    "reasoning": "none"
   },
   "grade": {
     "success": true,
@@ -170,7 +177,7 @@
         "request_id": "observation-1",
         "instrument_id": "aurora",
         "slot": 2,
-        "idempotency_key": "observation-1-aurora-2"
+        "idempotency_key": "observation-1:aurora:2"
       },
       "result": {
         "data": {
@@ -238,7 +245,7 @@
       "tool": null,
       "arguments": null,
       "result": null,
-      "text": "Scheduling complete. Check the recorded environment for the outcome.",
+      "text": "Scheduled **observation-1** on **Aurora / 01** in slot **2**. The unrelated reservation was preserved.",
       "state": {
         "instruments": [
           {

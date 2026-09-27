@@ -15,7 +15,9 @@ A small agent evaluation application built by Jarrod Savard. Claude and OpenAI m
 - **Python runner:** official SDK adapters, a shared bounded agent loop, typed artifacts, and a conservative spending guard.
 - **Offline testing:** pytest, Hypothesis, mocked HTTP integration tests, generated-contract checks, Vitest, and Playwright on desktop and mobile.
 
-**The published seed data is scripted, not Claude or OpenAI evidence.** The recovery reference passes all scenarios; the optimistic baseline intentionally handles failures poorly. The interface labels these policies as scripted demonstrations and omits fabricated timing/token comparisons. Live runs can be added with the explicit command below. A four-attempt showcase illustrates behavior; it does not establish a model ranking.
+**The published evidence contains two genuine OpenAI GPT-6 Luna trials**, recorded on September 27, 2026: one clean control and one instrument-unavailable variant. Both achieved the task. In the failure variant, Luna received a rejected reservation, inspected availability again, and booked the alternative instrument. Both attempts are included; estimated total cost was $0.0006231. Coverage is 2 of 24 scenarios, with no Claude results yet. This is an illustration, not a model ranking.
+
+The offline scripted reference still covers all 24 scenarios and the deliberately faulty baseline demonstrates grader failures. Generate those separately with the demo command below.
 
 ## Run locally
 
