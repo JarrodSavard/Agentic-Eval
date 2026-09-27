@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from observatory.agents import ScriptedAgent
 from observatory.artifacts import export_bundle, verify_bundle
 from observatory.budget import Budget
-from observatory.contracts import EvaluationBundle, ExperimentConfig, TrialResult, Usage
+from observatory.contracts import Contract, EvaluationBundle, ExperimentConfig, TrialResult, Usage
 from observatory.grading import grade
 from observatory.providers import PROVIDERS, create_agent
 from observatory.providers.registry import load_profiles
@@ -139,7 +139,12 @@ def main(argv: list[str] | None = None) -> int:
     demo = commands.add_parser("demo", help="Export deterministic scripted viewer fixtures")
     demo.add_argument("--output", default="public/data")
     schema = commands.add_parser("schema", help="Export the versioned artifact schema")
-    schema.add_argument("--output", default="contracts/evaluation.schema.json")
+    schema.add_argument("--output", help="Export only the evaluation schema to this path")
+    serve = commands.add_parser("serve", help="Serve the live UI on this computer only")
+    serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--site", default=".output/public")
+    serve.add_argument("--output", default="artifacts/local")
+    serve.add_argument("--profiles", default="config/models.json")
     verify = commands.add_parser(
         "verify", help="Re-execute recorded tool actions and independently grade"
     )
@@ -161,11 +166,37 @@ def main(argv: list[str] | None = None) -> int:
                 offline_bundle(ExperimentConfig(), reproducible=True), Path(args.output)
             )
         elif args.command == "schema":
-            path = Path(args.output)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            schema_data = EvaluationBundle.model_json_schema(mode="serialization")
-            schema_data["$schema"] = "https://json-schema.org/draft/2020-12/schema"
-            path.write_text(json.dumps(schema_data, indent=2) + "\n", encoding="utf-8")
+            from observatory.live import LiveAPI
+
+            models: dict[str, type[Contract]] = {
+                args.output or "contracts/evaluation.schema.json": EvaluationBundle
+            }
+            if not args.output:
+                models["contracts/live.schema.json"] = LiveAPI
+            for filename, contract in models.items():
+                path = Path(filename)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                schema_data = contract.model_json_schema(mode="serialization")
+                schema_data["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+                path.write_text(json.dumps(schema_data, indent=2) + "\n", encoding="utf-8")
+        elif args.command == "serve":
+            import uvicorn
+
+            from observatory.live import LiveManager
+            from observatory.local import create_app
+
+            load_dotenv(override=False)
+            if not (Path(args.site) / "index.html").is_file():
+                raise ValueError("Build the local viewer first with pnpm live")
+            manager = LiveManager(load_profiles(Path(args.profiles)), Path(args.output))
+            print(f"Open http://127.0.0.1:{args.port}/live/ — no model runs until you click Start.")
+            uvicorn.run(
+                create_app(manager, Path(args.site)),
+                host="127.0.0.1",
+                port=args.port,
+                access_log=False,
+                log_level="warning",
+            )
         else:
             bundle = EvaluationBundle.model_validate_json(
                 Path(args.file).read_text(encoding="utf-8")

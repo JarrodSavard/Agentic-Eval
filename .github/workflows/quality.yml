@@ -44,7 +44,7 @@ jobs:
       - name: Verify generated contracts
         run: |
           uv run observatory schema
-          git diff --exit-code -- contracts/evaluation.schema.json
+          git diff --exit-code -- contracts/
           pnpm check:contracts
       - name: Verify published evidence
         run: uv run observatory verify public/data/bundle.json

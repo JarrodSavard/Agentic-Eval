@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { featuredTrial } from '~/utils/results'
 import type { TrialResult } from '~/generated/evaluation'
 import { outcome, provenanceLabel, returnedModelLabel, money } from '~/utils/results'
 const route = useRoute()
@@ -37,11 +38,7 @@ function choose(id: string) {
 onMounted(async () => {
   await evaluation.load()
   const fromQuery = typeof route.query.trial === 'string' ? route.query.trial : ''
-  const defaultTrial =
-    evaluation.data.value?.trials.find(
-      (t) =>
-        t.scenario_id === 'instrument_unavailable-01-fault' && t.model === 'scripted-recovery-v1',
-    ) || evaluation.data.value?.trials[0]
+  const defaultTrial = featuredTrial(evaluation.data.value?.trials || [])
   selected.value = fromQuery || defaultTrial?.id || ''
   if (selected.value) await loadRecording(selected.value)
 })

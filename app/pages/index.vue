@@ -1,14 +1,11 @@
 <script setup lang="ts">
+import { featuredTrial } from '~/utils/results'
 import type { TrialResult } from '~/generated/evaluation'
 const evaluation = useEvaluation()
 const example = ref<TrialResult | null>(null)
 onMounted(async () => {
   await evaluation.load()
-  const candidate =
-    evaluation.data.value?.trials.find(
-      (t) =>
-        t.scenario_id === 'instrument_unavailable-01-fault' && t.model === 'scripted-recovery-v1',
-    ) || evaluation.data.value?.trials[0]
+  const candidate = featuredTrial(evaluation.data.value?.trials || [])
   if (candidate) {
     try {
       example.value = await evaluation.trial(candidate.id)

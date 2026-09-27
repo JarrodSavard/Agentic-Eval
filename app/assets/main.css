@@ -1230,6 +1230,136 @@ pre {
     gap: 8px;
   }
 }
+.live-setup {
+  max-width: 760px;
+}
+.live-form {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.7fr auto;
+  align-items: end;
+  gap: 24px;
+  margin: 28px 0 16px;
+}
+.live-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.live-form legend {
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+.live-form select {
+  width: 100%;
+  min-width: 0;
+}
+.model-choice {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 10px 0;
+}
+.model-choice input {
+  margin-top: 4px;
+  accent-color: var(--green);
+}
+.model-choice small,
+.live-form label > small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.live-form input[type='number'] {
+  width: 100%;
+  border: 1px solid #b1c2b6;
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+.live-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 30px 0 12px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.live-status p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.live-status > span {
+  font-size: 0.85rem;
+}
+.live-observation {
+  margin-top: 24px;
+}
+.live-follow {
+  padding: 0 20px 18px;
+}
+.live-follow label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.live-follow input {
+  accent-color: var(--green);
+}
+.live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin: 24px 0;
+}
+.live-outcomes {
+  margin-top: 36px;
+}
+.live-outcomes h2 {
+  font-size: 1.5rem;
+}
+.live-outcomes ul {
+  list-style: none;
+  padding: 0;
+}
+.live-outcomes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+.table-note code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .live-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .live-form {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .live-status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .live-outcomes li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

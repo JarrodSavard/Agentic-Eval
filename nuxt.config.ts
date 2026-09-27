@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-26',
   devtools: { enabled: false },
@@ -17,5 +19,16 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/main.css'],
   typescript: { strict: true },
-  nitro: { prerender: { routes: ['/', '/compare', '/replay', '/scenarios', '/methodology'] } },
+  nitro: {
+    ...(process.env.OBSERVATORY_LOCAL_BUILD === '1'
+      ? {
+          output: {
+            dir: resolve('.local-output'),
+            publicDir: resolve('.local-output/public'),
+            serverDir: resolve('.local-output/server'),
+          },
+        }
+      : {}),
+    prerender: { routes: ['/', '/compare', '/replay', '/scenarios', '/methodology', '/live'] },
+  },
 })

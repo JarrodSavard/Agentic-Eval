@@ -12,7 +12,7 @@
       <nav aria-label="Main navigation">
         <NuxtLink to="/compare">Comparison</NuxtLink><NuxtLink to="/replay">Replay</NuxtLink
         ><NuxtLink to="/scenarios">Scenarios</NuxtLink
-        ><NuxtLink to="/methodology">Methodology</NuxtLink>
+        ><NuxtLink to="/methodology">Methodology</NuxtLink><NuxtLink to="/live">Live</NuxtLink>
       </nav>
       <a
         class="source-link"

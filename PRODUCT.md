@@ -10,7 +10,7 @@ A fictional observatory provides 24 deterministic scenarios: twelve tasks paired
 
 ## Platform and stack
 
-Web, responsive and keyboard accessible. Nuxt/TypeScript static viewer; local Python runner; versioned JSON boundary. No hosted model execution, database, or user accounts. GitHub Pages deployment.
+Web, responsive and keyboard accessible. Nuxt/TypeScript viewer; local Python runner with a loopback-only live interface; versioned JSON boundary. No hosted model execution, database, or user accounts. GitHub Pages publishes recorded evidence. The user chose local live execution and shareable real recordings on September 27, 2026.
 
 ## Confirmed constraints
 

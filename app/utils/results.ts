@@ -63,3 +63,14 @@ export function outcome(trial: TrialSummary) {
 export function money(value: number) {
   return value === 0 ? '$0.00' : `$${value.toFixed(4)}`
 }
+
+export function featuredTrial(trials: TrialSummary[]) {
+  return (
+    trials.find((t) => t.source === 'live' && t.scenario_id.endsWith('-fault')) ||
+    trials.find(
+      (t) =>
+        t.scenario_id === 'instrument_unavailable-01-fault' && t.model === 'scripted-recovery-v1',
+    ) ||
+    trials[0]
+  )
+}

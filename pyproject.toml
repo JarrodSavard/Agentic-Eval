@@ -6,13 +6,27 @@ authors = [{name = "Jarrod Savard"}]
 license = "LicenseRef-Proprietary"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
-dependencies = ["pydantic>=2.12,<3", "openai>=2.54,<3", "anthropic>=0.121,<1", "python-dotenv>=1,<2"]
+dependencies = [
+    "pydantic>=2.12,<3",
+    "openai>=2.54,<3",
+    "anthropic>=0.121,<1",
+    "python-dotenv>=1,<2",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+]
 
 [project.scripts]
 observatory = "observatory.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=9,<10", "hypothesis>=6,<7", "httpx>=0.28,<1", "ruff>=0.12", "mypy>=1.18"]
+dev = [
+    "pytest>=9,<10",
+    "hypothesis>=6,<7",
+    "httpx>=0.28,<1",
+    "ruff>=0.12",
+    "mypy>=1.18",
+    "httpx2>=2.13.1",
+]
 
 [build-system]
 requires = ["hatchling"]

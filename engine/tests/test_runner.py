@@ -1,9 +1,13 @@
 import json
+from decimal import Decimal
+from threading import Event
 
 import pytest
 from observatory.agents import ScriptedAgent
 from observatory.artifacts import export_bundle, verify_bundle
-from observatory.contracts import EvaluationBundle, ExperimentConfig
+from observatory.budget import Pricing
+from observatory.contracts import EvaluationBundle, ExperimentConfig, Usage
+from observatory.protocol import AgentTurn, ToolCall
 from observatory.runner import make_bundle, run_trial
 from observatory.scenarios import catalog
 
@@ -93,3 +97,83 @@ def test_verifier_rejects_events_outside_configured_limits():
     trial.events[0].turn = 9
     bundle = make_bundle([scenario], [trial], config, experiment_id="test")
     assert any("turn order or limit" in error for error in verify_bundle(bundle))
+
+
+def test_live_observer_sees_each_event_before_the_next_agent_turn():
+    scenario = catalog()[0]
+    observed = []
+    agent = ScriptedAgent(scenario)
+    original_next = agent.next
+
+    def next_turn(limit):
+        if agent.calls:
+            assert observed
+            assert observed[-1].sequence == len(observed) - 1
+        return original_next(limit)
+
+    agent.next = next_turn
+    trial = run_trial(scenario, agent, ExperimentConfig(), on_event=observed.append)
+    assert observed == trial.events
+    observed[0].state.reservations.clear()
+    assert trial.events[0].state.reservations
+
+
+def test_cancel_stops_before_next_generation_and_preserves_partial_trace():
+    scenario = catalog()[0]
+    observed = []
+    trial = run_trial(
+        scenario,
+        ScriptedAgent(scenario),
+        ExperimentConfig(),
+        on_event=observed.append,
+        should_stop=lambda: bool(observed),
+    )
+    assert trial.status == "interrupted"
+    assert trial.tool_calls == 1
+    assert observed[-1].kind == "stopped"
+    assert trial.final_state == scenario.initial_state
+
+
+def test_stop_during_token_counting_does_not_start_paid_generation():
+    cancel = Event()
+
+    class CountingAgent(ScriptedAgent):
+        source = "live"
+        pricing = Pricing(Decimal("0.1"), Decimal("0.5"))
+
+        def count_input(self):
+            cancel.set()
+            return 10
+
+    scenario = catalog()[0]
+    agent = CountingAgent(scenario)
+    trial = run_trial(scenario, agent, ExperimentConfig(), should_stop=cancel.is_set)
+    assert trial.status == "interrupted"
+    assert agent.calls == 0
+    assert trial.estimated_cost_usd == trial.reserved_cost_usd == 0
+
+
+def test_stop_during_generation_accounts_response_without_executing_its_tools():
+    cancel = Event()
+
+    class RespondingAgent(ScriptedAgent):
+        source = "live"
+        pricing = Pricing(Decimal("0.1"), Decimal("0.5"))
+
+        def count_input(self):
+            return 10
+
+        def next(self, limit):
+            cancel.set()
+            return AgentTurn(
+                calls=[ToolCall("1", "inspect_observatory", {})],
+                usage=Usage(input_tokens=10, output_tokens=5),
+            )
+
+    scenario = catalog()[0]
+    trial = run_trial(
+        scenario, RespondingAgent(scenario), ExperimentConfig(), should_stop=cancel.is_set
+    )
+    assert trial.status == "interrupted"
+    assert trial.tool_calls == 0 and trial.usage.output_tokens == 5
+    assert trial.estimated_cost_usd == 0.0000035 and trial.reserved_cost_usd == 0

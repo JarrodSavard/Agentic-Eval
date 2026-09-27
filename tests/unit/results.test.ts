@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import {
+  featuredTrial,
   summarize,
   filterTrials,
   provenanceLabel,
@@ -62,4 +63,11 @@ describe('local result imports', () => {
   it('rejects oversized files before parsing', () => {
     expect(() => parseBundle(' '.repeat(5 * 1024 * 1024 + 1))).toThrow('5 MB')
   })
+})
+
+it('features a real fault trial regardless of outcome', () => {
+  const trials = fixture().trials
+  const clean = { ...trials[0]!, source: 'live' as const, scenario_id: 'example-clean' }
+  const fault = { ...clean, scenario_id: 'example-fault', status: 'provider_error' as const }
+  expect(featuredTrial([clean, ...trials, fault])).toBe(fault)
 })

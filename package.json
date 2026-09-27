@@ -7,6 +7,7 @@
   "packageManager": "pnpm@10.32.1",
   "scripts": {
     "dev": "nuxt dev --host 127.0.0.1",
+    "live": "node scripts/live.mjs",
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "test": "node scripts/test-fixtures.mjs && vitest run",

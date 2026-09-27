@@ -12,6 +12,11 @@ const files = {
   'app/generated/evaluation.ts': await prettier.format(types, { parser: 'typescript' }),
   'app/generated/validate.js': await prettier.format(validator, { parser: 'babel' }),
 }
+const liveSchema = JSON.parse(await readFile('contracts/live.schema.json', 'utf8'))
+files['app/generated/live.ts'] = await prettier.format(
+  await compile(liveSchema, 'LiveAPI', { additionalProperties: false, ignoreMinAndMaxItems: true }),
+  { parser: 'typescript' },
+)
 await mkdir('app/generated', { recursive: true })
 for (const [path, value] of Object.entries(files)) {
   if (process.argv.includes('--check')) {

@@ -29,6 +29,29 @@ pnpm dev
 
 Open the local address shown by Nuxt. No API keys are required for the viewer, tests, or scripted evaluations.
 
+### Watch a model run live
+
+Copy `.env.example` to `.env` and configure the provider you want to use. For Luna, only `OPENAI_API_KEY` is needed; Claude stays unavailable until `ANTHROPIC_API_KEY` is present. Restart the local runner after changing keys.
+
+```sh
+pnpm live
+```
+
+Open **http://127.0.0.1:8765/live/**. Select a model and task, then click **Start live experiment**. Each selected model attempts both the clean and failure conditions. Tool calls, failures, and state changes appear as the runner reports them. The default $0.50 budget covers the entire click, with a $1 maximum. Starting another experiment is a new paid invocation.
+
+**Stop experiment** prevents subsequent requests and tool actions after any in-flight response finishes accounting. Refreshing reconnects to the current/latest run without restarting it. The service binds only to loopback, keeps keys on the Python side, and accepts browser mutations only from its own local origin with a session token. The public Pages site provides recordings and setup instructions; it cannot initiate paid work.
+
+Results are saved under `artifacts/local/`. Download a finished recording or open it directly in the comparison view. Progress checkpoints use `.progress.json`; standard replayable bundles use `.json`. A hard process kill can leave only the progress checkpoint for an unfinished trial. No automatic resume or paid retry occurs. Browser reconnect works while the same server process is running; saved bundles survive a restart and can be opened through **Open result file**.
+
+To publish every attempt from one completed experiment:
+
+```sh
+uv run observatory verify artifacts/local/live-<run-id>.json
+uv run observatory publish artifacts/local/live-<run-id>.json
+```
+
+Commit the generated `public/data` files and push `main` to publish them through Pages. This replaces the current public dataset with that complete experiment. The local build uses `.local-output/`, separate from the Pages build in `.output/`.
+
 ```sh
 uv run observatory run
 uv run observatory verify artifacts/evaluation.json
@@ -92,7 +115,7 @@ pnpm test:e2e
 pnpm check:budget
 ```
 
-The budget check counts **all** compressed client JavaScript chunks against 250 KB, which is stricter than checking only the initial route. Detailed JSON traces load on demand. Tests never call live models; the Python suite blocks real socket connections. Frontend test commands regenerate their own scripted fixtures, so publishing genuine runs does not change their inputs.
+The budget check counts **all** compressed client JavaScript chunks against 250 KB, which is stricter than checking only the initial route. Detailed JSON traces load on demand. Tests never call live models; the Python suite blocks external network connections (Windows event-loop self-pipes use loopback). Frontend test commands regenerate their own scripted fixtures, so publishing genuine runs does not change their inputs.
 
 When changing the public Python contracts:
 
