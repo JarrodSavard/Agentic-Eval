@@ -4,7 +4,7 @@
 
 Can an AI book the right rental car when something goes wrong? This portfolio project by Jarrod Savard gives models the same customer request, then makes the booking site fail, takes a car out of service, or loses a booking confirmation. You can watch every action and check whether the customer actually got a suitable car.
 
-[Explore the application](https://jarrodsavard.github.io/Agentic-Eval/) · [Methodology](docs/methodology.md) · [Architecture](docs/architecture.md) · [Add a model or provider](docs/extending.md)
+[Explore the application](https://agentic-eval.vercel.app/) · [Methodology](docs/methodology.md) · [Architecture](docs/architecture.md) · [Add a model or provider](docs/extending.md)
 
 ## What is here
 
